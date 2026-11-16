@@ -1,0 +1,19 @@
+{
+  "name": "Vet Atlas 3D | Anatomia Veterinária",
+  "short_name": "Vet Atlas",
+  "description": "Atlas interativo de anatomia veterinária para estudo.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#071426",
+  "theme_color": "#071426",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

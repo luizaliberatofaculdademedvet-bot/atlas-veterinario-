@@ -3,145 +3,254 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071426">
+  <meta name="description" content="Explore sistemas e estruturas da anatomia veterinária em um atlas interativo.">
   <title>Vet Atlas 3D | Anatomia Veterinária</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
   <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071426;
+      --panel: #0c2038;
+      --panel-soft: #102d4b;
+      --line: #17456b;
+      --cyan: #42c8ff;
+      --muted: #a8c7df;
+      --text: #eaf5ff;
+      --accent: #087eaf;
+    }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #071426;
-      color: #eaf5ff;
-    }
-    header {
-      padding: 20px 28px;
-      background: #0b203b;
-      border-bottom: 1px solid #17456b;
-    }
-    header h1 { margin: 0; color: #42c8ff; }
-    header p { margin-bottom: 0; color: #a8c7df; }
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 16px 28px;
-      background: #0a1a30;
-    }
-    button, select, input {
-      padding: 11px 14px;
-      border: 1px solid #23618c;
-      border-radius: 7px;
-      background: #102d4b;
-      color: white;
-    }
-    button { cursor: pointer; }
-    button:hover { background: #087eaf; }
-    main {
-      display: grid;
-      grid-template-columns: 230px minmax(0, 1fr) 270px;
-      gap: 16px;
-      padding: 18px;
-    }
-    section {
-      background: #0c2038;
-      border: 1px solid #17456b;
-      border-radius: 12px;
-      padding: 18px;
-    }
-    h2 { color: #42c8ff; font-size: 18px; }
-    .viewer {
-      min-height: 500px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: radial-gradient(circle, #173b5b, #071426);
-      text-align: center;
-    }
-    .viewer .placeholder {
-      color: #a8c7df;
-      max-width: 420px;
-      line-height: 1.6;
-    }
-    .menu-item {
-      display: block;
-      width: 100%;
-      margin: 8px 0;
-      text-align: left;
-    }
-    .info { color: #b8d1e5; line-height: 1.6; }
-    @media (max-width: 900px) {
-      main { grid-template-columns: 1fr; }
-      .viewer { min-height: 350px; }
-    }
+    body { margin: 0; min-height: 100vh; font-family: Inter, Arial, sans-serif; background: var(--bg); color: var(--text); }
+    button, select, input { font: inherit; }
+    button, select, input { border: 1px solid #23618c; border-radius: 9px; background: var(--panel-soft); color: var(--text); }
+    button { cursor: pointer; transition: background .18s, border-color .18s, transform .18s; }
+    button:hover { background: var(--accent); border-color: var(--cyan); }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    .topbar { padding: 22px clamp(18px, 4vw, 48px); background: #0b203b; border-bottom: 1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .brand { display:flex; align-items:center; gap:14px; }
+    .brand-mark { width:46px; height:46px; display:grid; place-items:center; border-radius:14px; background:#123858; color:var(--cyan); font-size:25px; }
+    h1 { margin:0; color:var(--cyan); font-size:clamp(20px, 3vw, 28px); letter-spacing:.04em; }
+    .topbar p { margin:5px 0 0; color:var(--muted); }
+    .install { padding:10px 14px; white-space:nowrap; }
+    .toolbar { padding:15px clamp(18px, 4vw, 48px); background:#0a1a30; display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+    .toolbar select, .searchbox input { min-height:44px; padding:10px 13px; }
+    .searchbox { display:flex; flex:1; min-width:min(100%, 300px); gap:8px; }
+    .searchbox input { flex:1; min-width:0; }
+    .toolbar button { min-height:44px; padding:10px 16px; }
+    main { max-width:1600px; margin:auto; padding:18px clamp(14px, 2vw, 28px); display:grid; grid-template-columns:240px minmax(0, 1fr) 290px; gap:16px; }
+    .panel { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; }
+    h2 { margin:0 0 14px; color:var(--cyan); font-size:17px; }
+    .system-list { display:grid; gap:8px; }
+    .system-button { width:100%; min-height:42px; padding:10px 12px; text-align:left; display:flex; align-items:center; gap:10px; }
+    .system-button[aria-pressed="true"] { background:#087eaf; border-color:var(--cyan); }
+    .system-icon { width:22px; text-align:center; }
+    .viewer { min-height:540px; display:flex; flex-direction:column; position:relative; overflow:hidden; background:radial-gradient(ellipse at 50% 45%, #173b5b, #071426 75%); }
+    .viewer-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .viewer-head h2 { margin-bottom:4px; }
+    .eyebrow { color:var(--muted); font-size:13px; }
+    .model-stage { flex:1; min-height:330px; display:grid; place-items:center; position:relative; }
+    .model-orbit { width:min(340px, 75vw); aspect-ratio:1; border:1px solid #1e5275; border-radius:50%; display:grid; place-items:center; box-shadow:0 0 65px #0e548466, inset 0 0 45px #0e548433; animation:breathe 5s ease-in-out infinite; }
+    .animal { width:82%; max-width:360px; color:#48bff0; filter:drop-shadow(0 0 15px #42c8ff88); }
+    .animal .bone { stroke:#71d7ff; stroke-width:5; stroke-linecap:round; fill:none; }
+    .animal .body { fill:#164569; stroke:#42c8ff; stroke-width:3; }
+    .animal .organ { fill:#ff677d; stroke:#ffb1ba; stroke-width:2; }
+    .animal .organ-secondary { fill:#ffc857; stroke:#ffe4a3; stroke-width:2; }
+    .viewer-note { text-align:center; color:var(--muted); font-size:13px; line-height:1.55; max-width:520px; margin:0 auto; }
+    .viewer-controls { display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .viewer-controls button { padding:8px 12px; }
+    .viewer-controls button.active { background:#087eaf; border-color:var(--cyan); }
+    .info { color:#b8d1e5; line-height:1.65; margin:0; }
+    .detail-card { margin-top:14px; padding:12px; background:#102d4b; border:1px solid #23618c; border-radius:10px; }
+    .detail-card h3 { margin:0 0 6px; color:#fff; font-size:15px; }
+    .detail-card p { margin:0; color:#b8d1e5; font-size:14px; line-height:1.55; }
+    .result-list { display:grid; gap:8px; margin-top:12px; }
+    .result-item { text-align:left; padding:10px; }
+    .result-item small { display:block; margin-top:3px; color:var(--muted); }
+    .empty { color:var(--muted); font-size:14px; line-height:1.5; }
+    .footer { max-width:1600px; margin:auto; padding:0 clamp(18px, 4vw, 48px) 24px; color:#7897b1; font-size:12px; }
+    .toast { position:fixed; bottom:20px; left:50%; transform:translate(-50%, 20px); opacity:0; pointer-events:none; padding:12px 16px; border-radius:10px; background:#163957; border:1px solid #42c8ff; transition:.2s; z-index:5; }
+    .toast.show { opacity:1; transform:translate(-50%, 0); }
+    @keyframes breathe { 50% { transform:scale(1.025); } }
+    @media (max-width:1000px) { main { grid-template-columns:210px minmax(0, 1fr); } .details { grid-column:1 / -1; } }
+    @media (max-width:680px) { .topbar { align-items:flex-start; } .install { padding:9px; font-size:13px; } main { grid-template-columns:1fr; } .details { grid-column:auto; } .viewer { min-height:480px; } .system-list { grid-template-columns:repeat(2, minmax(0, 1fr)); } .system-button { font-size:13px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; } }
   </style>
 </head>
 <body>
-  <header>
-    <h1>VET ATLAS 3D</h1>
-    <p>Atlas interativo de Anatomia Veterinária</p>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">✚</div>
+      <div><h1>VET ATLAS 3D</h1><p>Atlas interativo de Anatomia Veterinária</p></div>
+    </div>
+    <button class="install" id="installButton" hidden>＋ Instalar app</button>
   </header>
 
-  <nav>
-    <select id="species">
-      <option value="Cão">Canino</option>
-      <option value="Gato">Felino</option>
-      <option value="Cavalo">Equino</option>
-      <option value="Bovino">Bovino</option>
+  <nav class="toolbar" aria-label="Ferramentas do atlas">
+    <label for="species" class="visually-hidden">Espécie</label>
+    <select id="species" aria-label="Selecionar espécie">
+      <option value="Cão">🐕 Canino</option>
+      <option value="Gato">🐈 Felino</option>
+      <option value="Cavalo">🐎 Equino</option>
+      <option value="Bovino">🐄 Bovino</option>
     </select>
-    <input id="search" placeholder="Pesquisar estrutura anatômica">
-    <button onclick="searchStructure()">Pesquisar</button>
+    <form class="searchbox" id="searchForm" role="search">
+      <input id="search" type="search" placeholder="Pesquisar estrutura anatômica…" aria-label="Pesquisar estrutura anatômica">
+      <button type="submit">Pesquisar</button>
+    </form>
   </nav>
 
   <main>
-    <section>
-      <h2>Sistemas anatômicos</h2>
-      <button class="menu-item" onclick="showSystem('Esquelético')">Esquelético</button>
-      <button class="menu-item" onclick="showSystem('Muscular')">Muscular</button>
-      <button class="menu-item" onclick="showSystem('Nervoso')">Nervoso</button>
-      <button class="menu-item" onclick="showSystem('Digestório')">Digestório</button>
-      <button class="menu-item" onclick="showSystem('Respiratório')">Respiratório</button>
-      <button class="menu-item" onclick="showSystem('Cardiovascular')">Cardiovascular</button>
-      <button class="menu-item" onclick="showSystem('Urinário')">Urinário</button>
-      <button class="menu-item" onclick="showSystem('Reprodutor')">Reprodutor</button>
-    </section>
+    <aside class="panel" aria-labelledby="systemsHeading">
+      <h2 id="systemsHeading">Sistemas anatômicos</h2>
+      <div class="system-list" id="systemList"></div>
+    </aside>
 
-    <section class="viewer">
-      <h2 id="viewerTitle">Modelo anatômico 3D</h2>
-      <div class="placeholder">
-        <p>Área reservada para o modelo anatômico tridimensional do cão.</p>
-        <p>Visualização, rotação, zoom e seleção de estruturas serão integrados com os modelos 3D do Vet Atlas.</p>
+    <section class="panel viewer" aria-labelledby="viewerTitle">
+      <div class="viewer-head">
+        <div><h2 id="viewerTitle">Visão geral</h2><div class="eyebrow" id="speciesLabel">Canino · Cão</div></div>
+        <span aria-hidden="true">✦</span>
+      </div>
+      <div class="model-stage">
+        <div class="model-orbit" id="modelOrbit" aria-label="Ilustração anatômica esquemática">
+          <svg class="animal" viewBox="0 0 400 260" role="img" aria-labelledby="animalTitle animalDesc">
+            <title id="animalTitle">Ilustração esquemática de um cão</title>
+            <desc id="animalDesc">Representação ilustrativa de anatomia veterinária, não é um modelo 3D diagnóstico.</desc>
+            <path class="body" d="M91 87 Q132 56 230 72 Q275 76 301 104 L325 112 L348 100 L368 112 L356 134 L330 139 Q317 174 294 183 L290 225 L271 225 L266 177 Q226 190 178 179 L167 225 L148 225 L150 171 Q119 166 106 146 L81 151 L68 139 L88 126 Q78 106 91 87Z"/>
+            <path class="bone" d="M108 112 Q175 91 260 111 M119 119 L114 147 M145 113 L142 155 M172 108 L171 158 M200 106 L199 162 M229 108 L231 158 M257 112 L264 153 M109 143 L145 154 L173 158 L202 160 L231 158 L262 151"/>
+            <path class="organ" d="M185 117 C170 101 151 121 164 138 L185 156 L205 136 C220 119 199 103 185 117Z"/>
+            <path class="organ-secondary" d="M218 120 Q238 112 245 129 Q247 147 228 148 Q214 140 218 120Z"/>
+            <circle cx="346" cy="118" r="3" fill="#eaf5ff"/>
+          </svg>
+        </div>
+      </div>
+      <p class="viewer-note" id="viewerNote">Explore os sistemas anatômicos ou pesquise uma estrutura para ver informações educativas. Ilustração esquemática — modelos 3D interativos ainda não integrados.</p>
+      <div class="viewer-controls" aria-label="Camadas ilustrativas">
+        <button type="button" class="active" data-layer="overview">Visão geral</button>
+        <button type="button" data-layer="skeleton">Esqueleto</button>
+        <button type="button" data-layer="organs">Órgãos</button>
       </div>
     </section>
 
-    <section>
-      <h2>Informações anatômicas</h2>
-      <p id="systemInfo" class="info">
-        Selecione um sistema anatômico para visualizar suas informações.
-      </p>
-      <hr>
-      <h2>Estrutura selecionada</h2>
-      <p id="structureInfo" class="info">
-        Nenhuma estrutura selecionada.
-      </p>
-    </section>
+    <aside class="panel details" aria-labelledby="detailsHeading">
+      <h2 id="detailsHeading">Informações anatômicas</h2>
+      <p class="info" id="systemInfo" aria-live="polite">Selecione um sistema anatômico para explorar suas estruturas.</p>
+      <div class="detail-card" id="selectedCard">
+        <h3 id="selectedTitle">Estrutura selecionada</h3>
+        <p id="structureInfo">Nenhuma estrutura selecionada.</p>
+      </div>
+      <div id="results" class="result-list" aria-live="polite"></div>
+    </aside>
   </main>
+  <footer class="footer">Conteúdo para estudo. As ilustrações e descrições são educativas e não substituem avaliação veterinária.</footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
-    function showSystem(system) {
-      document.getElementById('viewerTitle').textContent =
-        'Sistema ' + system;
-      document.getElementById('systemInfo').textContent =
-        'Sistema anatômico selecionado: ' + system +
-        '. As estruturas correspondentes serão exibidas após a integração dos modelos 3D.';
-    }
+    const systems = [
+      { name: 'Esquelético', icon: '🦴', description: 'Sustenta o corpo, protege órgãos e participa da locomoção. Explore ossos do crânio, coluna vertebral e membros.', structures: ['Crânio', 'Coluna vertebral', 'Costelas', 'Escápula', 'Úmero', 'Fêmur', 'Pelve'] },
+      { name: 'Muscular', icon: '💪', description: 'Os músculos produzem movimento, mantêm a postura e contribuem para a produção de calor.', structures: ['Masseter', 'Trapézio', 'Bíceps braquial', 'Diafragma', 'Glúteo médio', 'Gastrocnêmio'] },
+      { name: 'Nervoso', icon: '🧠', description: 'Coordena as funções corporais e recebe informações sensoriais. Inclui sistema nervoso central e periférico.', structures: ['Encéfalo', 'Medula espinhal', 'Nervo ciático', 'Nervo óptico', 'Cerebelo'] },
+      { name: 'Digestório', icon: '◉', description: 'Realiza a ingestão, digestão e absorção de nutrientes. A anatomia varia entre as espécies, especialmente nos herbívoros.', structures: ['Boca', 'Esôfago', 'Estômago', 'Fígado', 'Intestino delgado', 'Intestino grosso'] },
+      { name: 'Respiratório', icon: '🌬️', description: 'Conduz o ar e permite as trocas gasosas entre o ambiente e o sangue.', structures: ['Cavidade nasal', 'Laringe', 'Traqueia', 'Brônquios', 'Pulmões', 'Diafragma'] },
+      { name: 'Cardiovascular', icon: '❤️', description: 'Transporta sangue, oxigênio, nutrientes e outras substâncias por todo o organismo.', structures: ['Coração', 'Aorta', 'Veia cava', 'Artéria pulmonar', 'Veia jugular', 'Capilares'] },
+      { name: 'Urinário', icon: '💧', description: 'Filtra o sangue, produz urina e participa do equilíbrio de água e eletrólitos.', structures: ['Rins', 'Ureteres', 'Bexiga urinária', 'Uretra'] },
+      { name: 'Reprodutor', icon: '⚕️', description: 'Responsável pela reprodução. As estruturas e características variam de acordo com o sexo e a espécie.', structures: ['Ovários', 'Útero', 'Vagina', 'Testículos', 'Próstata', 'Pênis'] }
+    ];
+    const speciesSelect = document.getElementById('species');
+    const systemList = document.getElementById('systemList');
+    let selectedSystem = null;
+    let deferredInstallPrompt = null;
 
-    function searchStructure() {
-      const term = document.getElementById('search').value.trim();
-      document.getElementById('structureInfo').textContent =
-        term ? 'Pesquisa: ' + term +
-        '. A busca anatômica será conectada ao catálogo de estruturas.' :
-        'Digite o nome de uma estrutura anatômica.';
+    function currentSpecies() { return speciesSelect.value; }
+    function renderSystems() {
+      systemList.innerHTML = systems.map((system) => `
+        <button class="system-button" type="button" data-system="${system.name}" aria-pressed="${selectedSystem === system.name}">
+          <span class="system-icon" aria-hidden="true">${system.icon}</span><span>${system.name}</span>
+        </button>`).join('');
     }
+    function selectSystem(name) {
+      const system = systems.find((item) => item.name === name);
+      if (!system) return;
+      selectedSystem = name;
+      renderSystems();
+      document.getElementById('viewerTitle').textContent = `Sistema ${name}`;
+      document.getElementById('systemInfo').textContent = system.description;
+      document.getElementById('viewerNote').textContent = `${system.structures.length} estruturas para explorar em ${currentSpecies()}. Selecione uma estrutura na lista. A ilustração é esquemática; o modelo 3D ainda não está integrado.`;
+      document.getElementById('results').innerHTML = system.structures.map((structure) => `
+        <button type="button" class="result-item" data-structure="${structure}">${structure}<small>Sistema ${name}</small></button>`).join('');
+      document.getElementById('selectedTitle').textContent = 'Estrutura selecionada';
+      document.getElementById('structureInfo').textContent = 'Escolha uma estrutura na lista para ver a descrição.';
+    }
+    function selectStructure(name, systemName) {
+      const system = systems.find((item) => item.name === systemName);
+      document.getElementById('selectedTitle').textContent = name;
+      document.getElementById('structureInfo').textContent = `${name} — estrutura do sistema ${systemName}, em estudo para a espécie ${currentSpecies()}. Consulte bibliografia veterinária especializada para detalhes específicos da espécie.`;
+      document.getElementById('viewerNote').textContent = `Estrutura selecionada: ${name} · ${currentSpecies()}. Esta tela apresenta conteúdo educativo e não representa um exame diagnóstico.`;
+      if (system) document.getElementById('systemInfo').textContent = system.description;
+    }
+    function searchStructures(event) {
+      event.preventDefault();
+      const query = document.getElementById('search').value.trim().toLocaleLowerCase('pt-BR');
+      const results = document.getElementById('results');
+      if (!query) {
+        results.innerHTML = '<p class="empty">Digite o nome de uma estrutura para pesquisar.</p>';
+        return;
+      }
+      const matches = systems.flatMap((system) => system.structures
+        .filter((name) => name.toLocaleLowerCase('pt-BR').includes(query))
+        .map((name) => ({ name, system: system.name })));
+      document.getElementById('viewerTitle').textContent = 'Resultados da pesquisa';
+      document.getElementById('systemInfo').textContent = matches.length
+        ? `${matches.length} resultado(s) encontrado(s) para “${document.getElementById('search').value.trim()}”.`
+        : `Nenhuma estrutura encontrada para “${document.getElementById('search').value.trim()}”.`;
+      results.innerHTML = matches.length ? matches.map((item) => `
+        <button type="button" class="result-item" data-structure="${item.name}" data-result-system="${item.system}">${item.name}<small>Sistema ${item.system}</small></button>`).join('')
+        : '<p class="empty">Tente outro termo, como coração, fêmur ou pulmões.</p>';
+      selectedSystem = null;
+      renderSystems();
+    }
+    systemList.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-system]');
+      if (button) selectSystem(button.dataset.system);
+    });
+    document.getElementById('results').addEventListener('click', (event) => {
+      const button = event.target.closest('[data-structure]');
+      if (!button) return;
+      const systemName = button.dataset.resultSystem || selectedSystem || systems.find((item) => item.structures.includes(button.dataset.structure))?.name;
+      if (systemName) selectStructure(button.dataset.structure, systemName);
+    });
+    document.getElementById('searchForm').addEventListener('submit', searchStructures);
+    speciesSelect.addEventListener('change', () => {
+      const labels = { Cão: 'Canino', Gato: 'Felino', Cavalo: 'Equino', Bovino: 'Bovino' };
+      document.getElementById('speciesLabel').textContent = `${labels[currentSpecies()]} · ${currentSpecies()}`;
+      if (selectedSystem) selectSystem(selectedSystem);
+      else document.getElementById('viewerNote').textContent = `Espécie selecionada: ${currentSpecies()}. Explore um sistema anatômico ou pesquise uma estrutura. Ilustração esquemática; modelo 3D ainda não integrado.`;
+    });
+    document.querySelectorAll('[data-layer]').forEach((button) => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('[data-layer]').forEach((item) => item.classList.toggle('active', item === button));
+        const svg = document.querySelector('.animal');
+        svg.style.opacity = button.dataset.layer === 'skeleton' ? '.55' : '1';
+        svg.style.filter = button.dataset.layer === 'organs' ? 'drop-shadow(0 0 15px #ff677d99)' : 'drop-shadow(0 0 15px #42c8ff88)';
+        const messages = { overview: 'Visão geral esquemática do animal.', skeleton: 'Realce ilustrativo do esqueleto — não é um modelo anatômico 3D.', organs: 'Realce ilustrativo de órgãos — não é um modelo anatômico 3D.' };
+        document.getElementById('viewerNote').textContent = messages[button.dataset.layer];
+      });
+    });
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault(); deferredInstallPrompt = event;
+      document.getElementById('installButton').hidden = false;
+    });
+    document.getElementById('installButton').addEventListener('click', async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      document.getElementById('installButton').hidden = true;
+    });
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
+    }
+    renderSystems();
   </script>
 </body>
 </html>
