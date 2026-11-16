@@ -1,30 +1,34 @@
 # Vet Atlas 3D
 
-Atlas web educacional de anatomia veterinária, em português, com visualização 3D baseada em Three.js.
+Atlas veterinário educacional em ambiente web, construído para estudo anatômico em português e em latim, com visualização 3D integrada a uma interface de sistemas e estruturas.
 
-## Abrir e executar
+## Visão geral
 
-O visualizador 3D usa módulos carregados de CDN e, por isso, precisa de conexão à internet. Abra o site publicado no GitHub Pages (ou sirva a raiz do repositório por HTTP). A página também permite carregar localmente um modelo `.glb` pelo botão **Carregar modelo GLB**; o arquivo não é enviado para o servidor.
+- pesquisa por estrutura anatômica em português ou latim
+- seleção por sistema: esquelético, muscular, nervoso, digestório, respiratório, cardiovascular, urinário e genital
+- visualização didática com rotação, zoom e seleção por clique
+- filtros de camada: visão geral, esqueleto e órgãos
+- suporte a modelo GLB local para uso didático e extensão do atlas
+- referência estruturada a fontes acadêmicas e à nomenclatura veterinária internacional
 
-## Escopo anatômico e nomenclatura
+## Referências anatômicas
 
-O catálogo incluído é uma seleção inicial de estruturas com campos em português, latim e região. Ele não é uma cópia integral da *Nomina Anatomica Veterinaria* (NAV), nem substitui atlas, dissecação ou validação de docente. Confira formas, sinônimos, acentuação e aplicabilidade por espécie na edição vigente indicada pela disciplina/WAVA-ICVGAN. Termos latinos e traduções portuguesas são apresentados separadamente para evitar sugerir que sejam equivalências oficiais quando não validadas.
+Este projeto é um catálogo didático inicial e não substitui a nomenclatura oficial da disciplina. Para validação rigorosa de termos, estrutura, uso por espécie e formulários, consulte:
 
-Referências para conferência:
+- WAVA / ICVGAN — Nomina Anatomica Veterinaria: https://www.wava-amav.org/nav/
+- University of Minnesota — Veterinary Anatomy: https://vanat.cvm.umn.edu/
 
-- WAVA / ICVGAN, *Nomina Anatomica Veterinaria*: <https://www.wava-amav.org/nav/>
-- University of Minnesota, Veterinary Anatomy: <https://vanat.cvm.umn.edu/>
+## Observações importantes
 
-Antes de uso curricular, peça revisão a um anatomista veterinário. Atualize o catálogo versionando cada termo com a edição, seção/página e espécie a que se aplica.
+- A visualização 3D incluída no repositório é uma representação esquemática e didática.
+- O atlas não substitui dissecação, atlas veterinário oficial, orientação docente, documentação de espécie e consulta especializada.
+- Modelos GLB carregados localmente no navegador são tratados como dados locais; o arquivo não é enviado para o servidor.
+- Para uso em ambiente acadêmico com alta exigência, os termos e estruturas devem ser revisados por anatomista veterinário.
 
-## Modelo 3D
+## Como abrir
 
-O modelo gerado no navegador é uma ilustração esquemática de baixa fidelidade feita com primitivas Three.js. Ele serve para experimentar controles e camadas, não para ensinar topografia ou proporções anatômicas exatas. Não há arquivo anatômico GLB de alta fidelidade incluído. Para isso, use modelos próprios, licenciados para redistribuição e revisados por especialista; não redistribua modelos de atlas comerciais ou universitários sem autorização.
+Basta publicar o repositório em GitHub Pages ou servir a pasta via servidor HTTP local. A página usa módulos do Three.js carregados por CDN, então a conexão à internet é necessária para o funcionamento do motor 3D.
 
-O carregamento de `.glb` é local no navegador. Os nomes de nós do GLB podem não corresponder aos termos do catálogo automaticamente; a seleção anatômica por nomenclatura requer que o modelo seja preparado e rotulado com metadados compatíveis.
+## Observação final
 
-## Tecnologias
-
-- Three.js e OrbitControls para rotação, zoom, renderização e seleção por clique.
-- GitHub Pages / hospedagem estática.
-- O app depende de WebGL e de acesso à CDN do Three.js.
+Este atlas é um ponto de partida para um sistema universitário real. O passo seguinte ideal é a integração de um catálogo maior, espécie por espécie, com dados em JSON/BD validados por atlas de referência e por profissionais da área.
