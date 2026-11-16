@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vet Atlas 3D | Anatomia Veterinária</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #071426;
+      color: #eaf5ff;
+    }
+    header {
+      padding: 20px 28px;
+      background: #0b203b;
+      border-bottom: 1px solid #17456b;
+    }
+    header h1 { margin: 0; color: #42c8ff; }
+    header p { margin-bottom: 0; color: #a8c7df; }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 16px 28px;
+      background: #0a1a30;
+    }
+    button, select, input {
+      padding: 11px 14px;
+      border: 1px solid #23618c;
+      border-radius: 7px;
+      background: #102d4b;
+      color: white;
+    }
+    button { cursor: pointer; }
+    button:hover { background: #087eaf; }
+    main {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr) 270px;
+      gap: 16px;
+      padding: 18px;
+    }
+    section {
+      background: #0c2038;
+      border: 1px solid #17456b;
+      border-radius: 12px;
+      padding: 18px;
+    }
+    h2 { color: #42c8ff; font-size: 18px; }
+    .viewer {
+      min-height: 500px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle, #173b5b, #071426);
+      text-align: center;
+    }
+    .viewer .placeholder {
+      color: #a8c7df;
+      max-width: 420px;
+      line-height: 1.6;
+    }
+    .menu-item {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      text-align: left;
+    }
+    .info { color: #b8d1e5; line-height: 1.6; }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+      .viewer { min-height: 350px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>VET ATLAS 3D</h1>
+    <p>Atlas interativo de Anatomia Veterinária</p>
+  </header>
+
+  <nav>
+    <select id="species">
+      <option value="Cão">Canino</option>
+      <option value="Gato">Felino</option>
+      <option value="Cavalo">Equino</option>
+      <option value="Bovino">Bovino</option>
+    </select>
+    <input id="search" placeholder="Pesquisar estrutura anatômica">
+    <button onclick="searchStructure()">Pesquisar</button>
+  </nav>
+
+  <main>
+    <section>
+      <h2>Sistemas anatômicos</h2>
+      <button class="menu-item" onclick="showSystem('Esquelético')">Esquelético</button>
+      <button class="menu-item" onclick="showSystem('Muscular')">Muscular</button>
+      <button class="menu-item" onclick="showSystem('Nervoso')">Nervoso</button>
+      <button class="menu-item" onclick="showSystem('Digestório')">Digestório</button>
+      <button class="menu-item" onclick="showSystem('Respiratório')">Respiratório</button>
+      <button class="menu-item" onclick="showSystem('Cardiovascular')">Cardiovascular</button>
+      <button class="menu-item" onclick="showSystem('Urinário')">Urinário</button>
+      <button class="menu-item" onclick="showSystem('Reprodutor')">Reprodutor</button>
+    </section>
+
+    <section class="viewer">
+      <h2 id="viewerTitle">Modelo anatômico 3D</h2>
+      <div class="placeholder">
+        <p>Área reservada para o modelo anatômico tridimensional do cão.</p>
+        <p>Visualização, rotação, zoom e seleção de estruturas serão integrados com os modelos 3D do Vet Atlas.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Informações anatômicas</h2>
+      <p id="systemInfo" class="info">
+        Selecione um sistema anatômico para visualizar suas informações.
+      </p>
+      <hr>
+      <h2>Estrutura selecionada</h2>
+      <p id="structureInfo" class="info">
+        Nenhuma estrutura selecionada.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    function showSystem(system) {
+      document.getElementById('viewerTitle').textContent =
+        'Sistema ' + system;
+      document.getElementById('systemInfo').textContent =
+        'Sistema anatômico selecionado: ' + system +
+        '. As estruturas correspondentes serão exibidas após a integração dos modelos 3D.';
+    }
+
+    function searchStructure() {
+      const term = document.getElementById('search').value.trim();
+      document.getElementById('structureInfo').textContent =
+        term ? 'Pesquisa: ' + term +
+        '. A busca anatômica será conectada ao catálogo de estruturas.' :
+        'Digite o nome de uma estrutura anatômica.';
+    }
+  </script>
+</body>
+</html>
