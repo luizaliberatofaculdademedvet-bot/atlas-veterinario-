@@ -1,244 +1,39 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#071426" />
-  <meta name="description" content="Atlas veterinário interativo com nomenclatura anatômica e visualização 3D em ambiente acadêmico." />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071426">
+  <meta name="description" content="Atlas veterinário interativo com visualização 3D didática e nomenclatura anatômica.">
   <title>Vet Atlas 3D | Anatomia Veterinária</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
   <style>
-    :root {
-      color-scheme: dark;
-      --bg: #071426;
-      --bg-2: #0a1d33;
-      --panel: rgba(12, 32, 56, 0.96);
-      --panel-soft: rgba(16, 45, 75, 0.96);
-      --line: #17456b;
-      --line-soft: rgba(66, 200, 255, 0.18);
-      --cyan: #42c8ff;
-      --cyan-2: #8fe2ff;
-      --muted: #a8c7df;
-      --text: #eaf5ff;
-      --gold: #ffc857;
-      --warn: #ffcf8a;
-      --danger: #ff6e7d;
-      --shadow: rgba(0,0,0,0.38);
-    }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; font-family: Inter, 'Segoe UI', Arial, sans-serif; background: radial-gradient(circle at top, rgba(30, 81, 120, 0.33), rgba(7,20,38,1) 48%); color: var(--text); }
-    body { min-height: 100vh; }
-    a { color: var(--cyan-2); }
-    button, select, input { font: inherit; color: var(--text); }
-    button, select, input { border: 1px solid #23618c; border-radius: 10px; background: var(--panel-soft); }
-    button { cursor: pointer; transition: .18s ease; }
-    button:hover { background: #087eaf; border-color: var(--cyan); }
-    button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
-
-    .topbar {
-      display: flex; align-items: center; justify-content: space-between; gap: 18px;
-      padding: 20px clamp(16px, 4vw, 48px);
-      background: rgba(11, 32, 59, 0.96);
-      border-bottom: 1px solid var(--line);
-      box-shadow: 0 10px 34px rgba(0,0,0,0.18);
-    }
-    .brand { display: flex; align-items: center; gap: 15px; }
-    .mark {
-      width: 48px; height: 48px; display: grid; place-items: center;
-      border-radius: 15px; border: 1px solid rgba(66, 200, 255, 0.28);
-      background: linear-gradient(145deg, rgba(17,60,93,.9), rgba(10,30,48,.9));
-      color: var(--cyan); font-size: 24px; box-shadow: 0 0 28px rgba(66,200,255,.12);
-    }
-    .brand h1 { margin: 0; color: var(--cyan); font-size: clamp(20px, 2.8vw, 30px); letter-spacing: .08em; }
-    .brand p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-    .toolbar {
-      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-      background: rgba(8, 23, 36, 0.9);
-      border-bottom: 1px solid rgba(23, 69, 107, 0.8);
-      padding: 14px clamp(16px, 4vw, 48px);
-    }
-    .toolbar select, .toolbar input, .toolbar button { min-height: 42px; }
-    .toolbar select { padding: 8px 12px; }
-    .search { display: flex; gap: 8px; flex: 1; min-width: min(100%, 420px); }
-    .search input { flex: 1; min-width: 0; padding: 0 12px; }
-    .search button { padding: 0 14px; }
-
-    .layout {
-      display: grid; grid-template-columns: 240px minmax(0, 1fr) 320px;
-      gap: 14px; max-width: 1700px; margin: 0 auto; padding: 18px clamp(12px, 2vw, 28px);
-    }
-    .panel {
-      background: linear-gradient(180deg, rgba(12, 32, 56, 0.96), rgba(9, 24, 40, 0.96));
-      border: 1px solid var(--line); border-radius: 15px; padding: 17px; box-shadow: 0 14px 42px rgba(0,0,0,0.18);
-    }
-    .panel h2 { margin: 0 0 12px; font-size: 16px; color: var(--cyan); }
-    .systems { display: grid; gap: 8px; }
-    .system-btn {
-      width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; padding: 11px 12px;
-      border-radius: 10px; border-color: rgba(35, 97, 140, 0.9);
-    }
-    .system-btn[aria-pressed="true"] { background: #087eaf; border-color: var(--cyan); box-shadow: inset 3px 0 var(--cyan); }
-    .system-icon { width: 22px; text-align: center; }
-
-    .viewer-panel { display: flex; flex-direction: column; }
-    .viewer-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
-    .viewer-head h2 { margin: 0 0 3px; }
-    .subtitle { color: var(--muted); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
-    .label-pill {
-      display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; padding: 6px 10px;
-      border: 1px solid var(--line-soft); background: rgba(41, 90, 117, 0.25); color: #d7efff; font-size: 11px;
-    }
-    .canvas-wrap {
-      position: relative; min-height: 560px; border: 1px solid rgba(66,200,255,.18); border-radius: 12px;
-      background: radial-gradient(circle at center, rgba(33, 77, 112, 0.88), rgba(11, 29, 45, 1) 45%, rgba(5, 16, 27, 1) 100%);
-      overflow: hidden;
-    }
-    canvas { display: block; width: 100%; height: 100%; }
-    .overlay-badge {
-      position: absolute; right: 12px; top: 12px; max-width: 75%; padding: 6px 9px; border-radius: 8px;
-      background: rgba(5, 16, 27, 0.72); color: #d9f2ff; border: 1px solid rgba(66, 200, 255, 0.35); font-size: 11px; text-align: right;
-    }
-    .canvas-hint { position: absolute; left: 12px; bottom: 11px; padding: 6px 9px; border-radius: 8px; background: rgba(5, 16, 27, 0.72); color: #d8ebf9; font-size: 11px; }
-    .loading { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(7,20,38,0.45); color: #dbefff; font-size: 13px; }
-    .loading[hidden] { display: none; }
-    .controls {
-      display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 11px;
-    }
-    .controls button { padding: 8px 12px; font-size: 12px; }
-    .controls button.active { background: #087eaf; border-color: var(--cyan); }
-    .upload-btn {
-      position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center;
-      padding: 8px 12px; font-size: 12px;
-    }
-    .upload-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-    .note { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
-
-    .terms { display: grid; gap: 8px; margin-top: 12px; max-height: 440px; overflow: auto; }
-    .term-btn {
-      width: 100%; text-align: left; padding: 10px 11px; border-radius: 10px; background: rgba(16, 45, 75, 0.75); border-color: rgba(35,97,140,.8);
-    }
-    .term-btn[aria-pressed="true"] { border-color: var(--gold); box-shadow: inset 3px 0 var(--gold); }
-    .term-btn strong { display: block; font-size: 13px; }
-    .term-btn em { display: block; font-style: italic; color: var(--cyan-2); font-size: 12px; margin-top: 3px; }
-    .term-btn small { display: block; color: var(--muted); font-size: 10px; margin-top: 4px; }
-
-    .detail-card {
-      margin-top: 12px; padding: 12px; border-radius: 11px; background: rgba(16, 45, 75, 0.8); border: 1px solid #23618c;
-    }
-    .detail-card h3 { margin: 0 0 6px; color: white; font-size: 16px; }
-    .detail-card .latin { color: var(--cyan-2); font-style: italic; }
-    .detail-card p { margin: 6px 0 0; color: #cfe5f6; line-height: 1.55; font-size: 13px; }
-    .meta { color: var(--muted); font-size: 11px; line-height: 1.55; }
-
-    .notice {
-      margin-top: 12px; padding: 10px 11px; border-radius: 10px; background: rgba(141, 108, 39, 0.18); border: 1px solid rgba(255, 200, 87, 0.45); color: #ffe4a3; font-size: 12px; line-height: 1.6;
-    }
-    .source-list { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(23,69,107,0.8); color: var(--muted); font-size: 11px; line-height: 1.7; }
-    .source-list a { color: var(--cyan-2); }
-    .toast {
-      position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 18px); opacity: 0; pointer-events: none;
-      padding: 10px 14px; background: rgba(16, 45, 75, 0.96); border: 1px solid var(--cyan); border-radius: 10px;
-      color: var(--text); transition: .2s ease; z-index: 10;
-    }
-    .toast.show { opacity: 1; transform: translate(-50%, 0); }
-    .sr-only {
-      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-    }
-
-    @media (max-width: 1050px) {
-      .layout { grid-template-columns: 220px minmax(0, 1fr); }
-      .info-panel { grid-column: 1 / -1; }
-    }
-    @media (max-width: 700px) {
-      .layout { grid-template-columns: 1fr; }
-      .systems { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .canvas-wrap { min-height: 420px; }
-      .toolbar { gap: 10px; }
-      .search { min-width: 100%; }
-      .terms { max-height: none; }
-    }
+    :root{color-scheme:dark;--bg:#071426;--panel:#0c2038;--panel2:#102d4b;--line:#17456b;--cyan:#42c8ff;--muted:#a8c7df;--text:#eaf5ff;--gold:#ffc857}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#153855 0,#071426 52rem);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,select,input{font:inherit;color:inherit}button,select,input{border:1px solid #23618c;border-radius:10px;background:var(--panel2)}button{cursor:pointer;transition:.18s ease}button:hover{background:#087eaf;border-color:var(--cyan)}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}.top{padding:18px clamp(16px,4vw,48px);display:flex;align-items:center;justify-content:space-between;gap:15px;background:#0b203bf2;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:13px}.mark{width:46px;height:46px;display:grid;place-items:center;border:1px solid #23618c;border-radius:14px;color:var(--cyan);font-size:23px;background:linear-gradient(145deg,#16456a,#0d263e)}h1{margin:0;color:var(--cyan);font-size:clamp(20px,3vw,29px);letter-spacing:.07em}.brand p{margin:3px 0 0;color:var(--muted);font-size:13px}.toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:13px clamp(16px,4vw,48px);background:#091a2ddd;border-bottom:1px solid #17456b}.toolbar select,.toolbar input,.toolbar button{min-height:42px;padding:8px 12px}.search{display:flex;gap:8px;flex:1;min-width:min(100%,320px)}.search input{flex:1;min-width:0}.layout{max-width:1650px;margin:auto;padding:17px clamp(12px,2vw,26px);display:grid;grid-template-columns:220px minmax(0,1fr) 300px;gap:14px}.panel{min-width:0;padding:16px;background:linear-gradient(155deg,#0d2440f5,#091b30f5);border:1px solid var(--line);border-radius:15px;box-shadow:0 15px 44px #0003}.panel h2{margin:0 0 12px;color:var(--cyan);font-size:16px}.systems{display:grid;gap:7px}.system{width:100%;padding:10px;text-align:left;display:flex;gap:9px;align-items:center}.system[aria-pressed=true]{background:#087eaf;border-color:var(--cyan);box-shadow:inset 3px 0 var(--cyan)}.sysicon{width:22px;text-align:center}.viewer{display:flex;flex-direction:column}.viewerhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}.viewerhead h2{margin:0 0 3px}.caption{font-size:12px;color:var(--muted)}.badge{font-size:11px;color:#d9f3ff;border:1px solid #42c8ff44;background:#173b5b99;border-radius:99px;padding:5px 9px;white-space:nowrap}.canvaswrap{position:relative;min-height:550px;flex:1;overflow:hidden;border:1px solid #42c8ff35;border-radius:12px;background:radial-gradient(ellipse at 50% 45%,#214d70 0,#102d4b 38%,#071426 80%)}canvas{display:block;width:100%;height:100%;touch-action:none}.canvasHint,.modelbadge{position:absolute;background:#061426c9;border:1px solid #42c8ff35;border-radius:8px;padding:6px 9px;color:#d8efff;font-size:11px}.canvasHint{left:10px;bottom:10px}.modelbadge{right:10px;top:10px;max-width:68%;text-align:right}.loading{position:absolute;inset:0;display:grid;place-items:center;background:#07142699}.loading[hidden]{display:none}.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.controls button,.upload{padding:8px 11px;font-size:12px}.controls button.active{background:#087eaf;border-color:var(--cyan)}.upload{position:relative;overflow:hidden;border:1px solid #23618c;border-radius:9px;background:var(--panel2);cursor:pointer}.upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.note{font-size:11px;line-height:1.55;color:var(--muted);margin:8px 0 0}.terms{display:grid;gap:7px;margin-top:10px;max-height:430px;overflow:auto}.term{width:100%;padding:9px 10px;text-align:left}.term[aria-pressed=true]{border-color:var(--gold);box-shadow:inset 3px 0 var(--gold)}.term strong,.term em,.term small{display:block}.term strong{font-size:13px}.term em{color:#8fe2ff;font-size:12px}.term small{color:var(--muted);font-size:10px;margin-top:3px}.detail{margin-top:11px;padding:11px;border:1px solid #23618c;border-radius:10px;background:#102d4b99}.detail h3{margin:0 0 3px;font-size:15px}.detail .latin{font-style:italic;color:#8fe2ff}.detail p,.meta{font-size:11px;line-height:1.55;color:var(--muted);margin:5px 0 0}.notice{margin-top:11px;padding:10px;border:1px solid #856a32;border-radius:9px;background:#392d182e;color:#ffe1a0;font-size:11px;line-height:1.55}.sources{margin-top:11px;padding-top:10px;border-top:1px solid var(--line);font-size:11px;line-height:1.8;color:var(--muted)}.sources a{color:#8fe2ff}.toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,18px);opacity:0;padding:10px 14px;border:1px solid var(--cyan);border-radius:10px;background:#102d4bf2;transition:.2s;pointer-events:none;z-index:5}.toast.show{opacity:1;transform:translate(-50%,0)}.footer{max-width:1650px;margin:auto;padding:0 18px 20px;color:#89a7bd;font-size:11px}.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@media(max-width:1000px){.layout{grid-template-columns:195px minmax(0,1fr)}.info{grid-column:1/-1}.terms{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none}}@media(max-width:680px){.layout{grid-template-columns:1fr}.info{grid-column:auto}.systems{grid-template-columns:repeat(2,minmax(0,1fr))}.system{font-size:12px;padding:8px}.canvaswrap{min-height:420px}.search{min-width:100%}.terms{grid-template-columns:1fr}.toolbar select{flex:1}}
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="mark" aria-hidden="true">✚</div>
-      <div>
-        <h1>VET ATLAS 3D</h1>
-        <p>Atlas interativo de anatomia veterinária</p>
-      </div>
-    </div>
-    <div>
-      <button id="resetView" type="button">⌖ Recentrar</button>
-    </div>
+  <header class="top">
+    <div class="brand"><div class="mark" aria-hidden="true">✚</div><div><h1>VET ATLAS 3D</h1><p>Atlas interativo de anatomia veterinária</p></div></div>
+    <button id="reset" type="button">⌖ Recentrar</button>
   </header>
-
   <nav class="toolbar" aria-label="Ferramentas do atlas">
-    <label class="sr-only" for="species">Espécie</label>
-    <select id="species">
-      <option value="canine">Cão (Canis lupus familiaris)</option>
-      <option value="feline">Gato (Felis catus)</option>
-      <option value="equine">Cavalo (Equus caballus)</option>
-      <option value="bovine">Bovino (Bos taurus)</option>
-    </select>
-
-    <form class="search" id="searchForm" role="search">
-      <label class="sr-only" for="query">Pesquisar estrutura</label>
-      <input id="query" type="search" placeholder="Pesquisar estrutura em português ou latim…" />
-      <button type="submit">Pesquisar</button>
-    </form>
+    <label class="sr" for="species">Espécie</label>
+    <select id="species"><option value="Cão">Cão (Canis lupus familiaris)</option><option value="Gato">Gato (Felis catus)</option><option value="Cavalo">Cavalo (Equus caballus)</option><option value="Bovino">Bovino (Bos taurus)</option></select>
+    <form class="search" id="search"><label class="sr" for="query">Buscar estrutura</label><input id="query" type="search" placeholder="Buscar estrutura em português ou latim…"><button type="submit">Pesquisar</button></form>
   </nav>
-
   <main class="layout">
-    <aside class="panel">
-      <h2>Sistemas anatômicos</h2>
-      <div id="systemList" class="systems" aria-live="polite"></div>
-    </aside>
-
-    <section class="panel viewer-panel" aria-labelledby="viewerTitle">
-      <div class="viewer-head">
-        <div>
-          <h2 id="viewerTitle">Modelo anatômico</h2>
-          <div class="subtitle" id="speciesCaption">Canino · vista lateral</div>
-        </div>
-        <div class="label-pill" id="statusPill">● Modelo didático</div>
-      </div>
-
-      <div class="canvas-wrap" id="canvasWrap">
-        <canvas id="sceneCanvas"></canvas>
-        <div class="loading" id="loading" hidden>Carregando visualização 3D…</div>
-        <div class="overlay-badge" id="modelBadge">Representação acadêmica simplificada</div>
-        <div class="canvas-hint">Arraste para girar · rolar para zoom · clique em uma estrutura</div>
-      </div>
-
-      <div class="controls" aria-label="Controles de visualização">
-        <button type="button" class="active" data-layer="overview">Visão geral</button>
-        <button type="button" data-layer="skeleton">Esqueleto</button>
-        <button type="button" data-layer="organs">Órgãos</button>
-        <button type="button" id="wireToggle">Malha</button>
-        <label class="upload-btn">＋ Carregar GLB<input id="modelFile" type="file" accept=".glb,.gltf" aria-label="Carregar modelo GLB local" /></label>
-      </div>
-      <p class="note">A cena 3D incluída é didática e esquemática. O uso em ensino, pesquisa e apresentação deve ser validado por anatomista veterinário e por bibliografia da disciplina.</p>
+    <aside class="panel"><h2>Sistemas anatômicos</h2><div class="systems" id="systems"></div></aside>
+    <section class="panel viewer">
+      <div class="viewerhead"><div><h2 id="viewTitle">Modelo de superfície</h2><div class="caption" id="caption">Cão · vista lateral</div></div><span class="badge" id="status">● Modelo 3D ilustrativo</span></div>
+      <div class="canvaswrap" id="canvasWrap"><canvas id="scene" aria-label="Modelo 3D ilustrativo de um cão"></canvas><div class="loading" id="loading" hidden>Carregando modelo…</div><div class="modelbadge" id="modelBadge">Modelo didático; não representa uma reconstrução anatômica validada</div><div class="canvasHint">Arraste para girar · scroll/pinça para zoom · clique para selecionar</div></div>
+      <div class="controls"><button type="button" class="active" data-layer="surface">Superfície</button><button type="button" data-layer="skeleton">Esqueleto</button><button type="button" data-layer="organs">Órgãos</button><button type="button" id="wire">Malha</button><label class="upload">＋ Abrir modelo GLB<input id="file" type="file" accept=".glb,.gltf" aria-label="Abrir arquivo 3D local"></label></div>
+      <p class="note">A forma é uma ilustração procedural mais detalhada, ainda simplificada. Para realismo anatômico universitário, use um modelo 3D licenciado e revisado por especialista; modelos comerciais não podem ser copiados sem permissão.</p>
     </section>
-
-    <aside class="panel info-panel" aria-labelledby="infoTitle">
-      <h2 id="infoTitle">Nomenclatura anatômica</h2>
-      <div class="meta" id="systemDescription">Selecione um sistema anatômico para consultar as estruturas e os termos oficiais.</div>
-      <div id="termsList" class="terms" aria-live="polite"></div>
-      <div class="detail-card" id="detailCard">
-        <h3>Estrutura selecionada</h3>
-        <div class="meta">Os termos em latim são apresentados separadamente para evitar equívocos com nomenclatura não validada.</div>
-      </div>
-      <div class="notice">Nomenclatura latina e tradução em português devem ser validadas por disciplina e por atlas veterinário oficial, especialmente em aplicações acadêmicas e clínicas.</div>
-      <div class="source-list">
-        <strong>Referências de estudo</strong><br>
-        <a href="https://www.wava-amav.org/nav/" target="_blank" rel="noreferrer">Nomina Anatomica Veterinaria (WAVA / ICVGAN)</a><br>
-        <a href="https://vanat.cvm.umn.edu/" target="_blank" rel="noreferrer">University of Minnesota — Veterinary Anatomy</a>
-      </div>
-    </aside>
+    <aside class="panel info"><h2 id="infoTitle">Nomenclatura anatômica</h2><p class="meta" id="description">Selecione um sistema.</p><div class="terms" id="terms" aria-live="polite"></div><div class="detail" id="detail"><h3>Selecione uma estrutura</h3><p>Português e latim aparecem em campos separados para facilitar a conferência.</p></div><div class="notice">O catálogo é inicial e requer conferência com a edição recomendada da NAV/WAVA-ICVGAN e revisão docente. A espécie escolhida não altera a geometria deste modelo ilustrativo.</div><div class="sources"><b>Referências</b><br><a href="https://www.wava-amav.org/nav/" target="_blank" rel="noreferrer">Nomina Anatomica Veterinaria — WAVA/ICVGAN</a><br><a href="https://vanat.cvm.umn.edu/" target="_blank" rel="noreferrer">University of Minnesota — Veterinary Anatomy</a></div></aside>
   </main>
-
+  <footer class="footer">Material educativo em desenvolvimento. Não substitui atlas anatômico, dissecação, bibliografia da disciplina ou orientação de profissional.</footer>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script type="module">
@@ -246,577 +41,73 @@
     import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
     import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 
-    const systems = [
-      { id: 'skeleton', label: 'Esquelético', latin: 'Systema skeletale', icon: '🦴', description: 'Constitui o arcabouço de sustentação e proteção do corpo animal, com estruturas do esqueleto axial e apendicular.', structures: [
-        { pt: 'Crânio', latin: 'Cranium', region: 'Esqueleto axial' },
-        { pt: 'Mandíbula', latin: 'Mandibula', region: 'Esqueleto axial' },
-        { pt: 'Coluna vertebral', latin: 'Columna vertebralis', region: 'Esqueleto axial' },
-        { pt: 'Vértebras cervicais', latin: 'Vertebrae cervicales', region: 'Esqueleto axial' },
-        { pt: 'Costelas', latin: 'Costae', region: 'Tórax' },
-        { pt: 'Esterno', latin: 'Sternum', region: 'Tórax' },
-        { pt: 'Escápula', latin: 'Scapula', region: 'Membro torácico' },
-        { pt: 'Úmero', latin: 'Humerus', region: 'Membro torácico' },
-        { pt: 'Rádio', latin: 'Radius', region: 'Membro torácico' },
-        { pt: 'Ulna', latin: 'Ulna', region: 'Membro torácico' },
-        { pt: 'Osso coxal', latin: 'Os coxae', region: 'Membro pélvico' },
-        { pt: 'Fêmur', latin: 'Femur', region: 'Membro pélvico' },
-        { pt: 'Patela', latin: 'Patella', region: 'Membro pélvico' },
-        { pt: 'Tíbia', latin: 'Tibia', region: 'Membro pélvico' },
-        { pt: 'Fíbula', latin: 'Fibula', region: 'Membro pélvico' }
-      ] },
-      { id: 'muscular', label: 'Muscular', latin: 'Systema musculare', icon: '💪', description: 'Responsável pelo movimento, pela postura e pela estabilidade articular.', structures: [
-        { pt: 'Músculo masseter', latin: 'Musculus masseter', region: 'Cabeça' },
-        { pt: 'Músculo trapézio', latin: 'Musculus trapezius', region: 'Pescoço e tronco' },
-        { pt: 'Músculo braquiocefálico', latin: 'Musculus brachiocephalicus', region: 'Pescoço e membro torácico' },
-        { pt: 'Músculo bíceps braquial', latin: 'Musculus biceps brachii', region: 'Membro torácico' },
-        { pt: 'Diafragma', latin: 'Diaphragma', region: 'Tórax e abdome' },
-        { pt: 'Músculo glúteo médio', latin: 'Musculus gluteus medius', region: 'Membro pélvico' },
-        { pt: 'Músculo gastrocnêmio', latin: 'Musculus gastrocnemius', region: 'Membro pélvico' }
-      ] },
-      { id: 'nervous', label: 'Nervoso', latin: 'Systema nervosum', icon: '🧠', description: 'Controla respostas sensoriais, motoras e integra funções corporais.', structures: [
-        { pt: 'Encéfalo', latin: 'Encephalon', region: 'Sistema nervoso central' },
-        { pt: 'Cérebro', latin: 'Cerebrum', region: 'Sistema nervoso central' },
-        { pt: 'Cerebelo', latin: 'Cerebellum', region: 'Sistema nervoso central' },
-        { pt: 'Medula espinhal', latin: 'Medulla spinalis', region: 'Sistema nervoso central' },
-        { pt: 'Nervo óptico', latin: 'Nervus opticus', region: 'Nervo craniano' },
-        { pt: 'Nervo ciático', latin: 'Nervus ischiadicus', region: 'Nervo periférico' }
-      ] },
-      { id: 'digestive', label: 'Digestório', latin: 'Systema digestorium', icon: '◉', description: 'Conduz ingestão, digestão, absorção e eliminação de resíduos.', structures: [
-        { pt: 'Cavidade oral', latin: 'Cavum oris', region: 'Tubo digestório' },
-        { pt: 'Esôfago', latin: 'Oesophagus', region: 'Tubo digestório' },
-        { pt: 'Estômago', latin: 'Ventriculus', region: 'Tubo digestório' },
-        { pt: 'Fígado', latin: 'Hepar', region: 'Órgão associado' },
-        { pt: 'Pâncreas', latin: 'Pancreas', region: 'Órgão associado' },
-        { pt: 'Intestino delgado', latin: 'Intestinum tenue', region: 'Tubo digestório' },
-        { pt: 'Duodeno', latin: 'Duodenum', region: 'Intestino delgado' },
-        { pt: 'Jejuno', latin: 'Jejunum', region: 'Intestino delgado' },
-        { pt: 'Íleo', latin: 'Ileum', region: 'Intestino delgado' },
-        { pt: 'Intestino grosso', latin: 'Intestinum crassum', region: 'Tubo digestório' },
-        { pt: 'Ceco', latin: 'Caecum', region: 'Intestino grosso' },
-        { pt: 'Cólon', latin: 'Colon', region: 'Intestino grosso' },
-        { pt: 'Reto', latin: 'Rectum', region: 'Tubo digestório' }
-      ] },
-      { id: 'respiratory', label: 'Respiratório', latin: 'Systema respiratorium', icon: '🌬️', description: 'Permite a ventilação e as trocas gasosas entre meio externo e interior corporal.', structures: [
-        { pt: 'Cavidade nasal', latin: 'Cavum nasi', region: 'Vias aéreas' },
-        { pt: 'Laringe', latin: 'Larynx', region: 'Vias aéreas' },
-        { pt: 'Traqueia', latin: 'Trachea', region: 'Vias aéreas' },
-        { pt: 'Brônquios', latin: 'Bronchi', region: 'Vias aéreas' },
-        { pt: 'Pulmão', latin: 'Pulmo', region: 'Órgão respiratório' },
-        { pt: 'Diafragma', latin: 'Diaphragma', region: 'Músculo respiratório' }
-      ] },
-      { id: 'cardiovascular', label: 'Cardiovascular', latin: 'Systema cardiovasculare', icon: '❤️', description: 'Distribui sangue, oxigênio e nutrientes para os tecidos e órgãos.', structures: [
-        { pt: 'Coração', latin: 'Cor', region: 'Órgão central' },
-        { pt: 'Átrio direito', latin: 'Atrium dextrum', region: 'Coração' },
-        { pt: 'Átrio esquerdo', latin: 'Atrium sinistrum', region: 'Coração' },
-        { pt: 'Ventrículo direito', latin: 'Ventriculus dexter', region: 'Coração' },
-        { pt: 'Ventrículo esquerdo', latin: 'Ventriculus sinister', region: 'Coração' },
-        { pt: 'Aorta', latin: 'Aorta', region: 'Artéria sistêmica' },
-        { pt: 'Veia cava cranial', latin: 'Vena cava cranialis', region: 'Veia sistêmica' },
-        { pt: 'Veia cava caudal', latin: 'Vena cava caudalis', region: 'Veia sistêmica' },
-        { pt: 'Artéria pulmonar', latin: 'Arteria pulmonalis', region: 'Circulação pulmonar' }
-      ] },
-      { id: 'urinary', label: 'Urinário', latin: 'Systema urinarium', icon: '💧', description: 'Excreção e regulação dos fluidos corporais.', structures: [
-        { pt: 'Rim', latin: 'Ren', region: 'Órgão urinário' },
-        { pt: 'Ureter', latin: 'Ureter', region: 'Via urinária' },
-        { pt: 'Bexiga urinária', latin: 'Vesica urinaria', region: 'Via urinária' },
-        { pt: 'Uretra', latin: 'Urethra', region: 'Via urinária' }
-      ] },
-      { id: 'reproductive', label: 'Genital', latin: 'Systemata genitalia', icon: '⚕️', description: 'Estruturas reprodutivas femininas e masculinas, observadas conforme sexo e espécie.', structures: [
-        { pt: 'Ovário', latin: 'Ovarium', region: 'Fêmea' },
-        { pt: 'Tuba uterina', latin: 'Tuba uterina', region: 'Fêmea' },
-        { pt: 'Útero', latin: 'Uterus', region: 'Fêmea' },
-        { pt: 'Vagina', latin: 'Vagina', region: 'Fêmea' },
-        { pt: 'Testículo', latin: 'Testis', region: 'Macho' },
-        { pt: 'Epidídimo', latin: 'Epididymis', region: 'Macho' },
-        { pt: 'Próstata', latin: 'Prostata', region: 'Macho' },
-        { pt: 'Pênis', latin: 'Penis', region: 'Macho' }
-      ] }
+    const data=[
+      {id:'skeleton',name:'Esquelético',latin:'Systema skeletale',icon:'🦴',text:'Arcabouço de sustentação e proteção.',items:[['Crânio','Cranium','Esqueleto axial'],['Mandíbula','Mandibula','Esqueleto axial'],['Coluna vertebral','Columna vertebralis','Esqueleto axial'],['Costelas','Costae','Tórax'],['Esterno','Sternum','Tórax'],['Escápula','Scapula','Membro torácico'],['Úmero','Humerus','Membro torácico'],['Rádio','Radius','Membro torácico'],['Ulna','Ulna','Membro torácico'],['Osso coxal','Os coxae','Membro pélvico'],['Fêmur','Femur','Membro pélvico'],['Patela','Patella','Membro pélvico'],['Tíbia','Tibia','Membro pélvico'],['Fíbula','Fibula','Membro pélvico']]},
+      {id:'muscular',name:'Muscular',latin:'Systema musculare',icon:'💪',text:'Movimento, postura e estabilidade articular.',items:[['Músculo masseter','Musculus masseter','Cabeça'],['Músculo trapézio','Musculus trapezius','Pescoço e tronco'],['Músculo braquiocefálico','Musculus brachiocephalicus','Pescoço'],['Músculo bíceps braquial','Musculus biceps brachii','Membro torácico'],['Diafragma','Diaphragma','Tórax'],['Músculo glúteo médio','Musculus gluteus medius','Membro pélvico'],['Músculo gastrocnêmio','Musculus gastrocnemius','Membro pélvico']]},
+      {id:'nervous',name:'Nervoso',latin:'Systema nervosum',icon:'🧠',text:'Integra funções e respostas sensoriais e motoras.',items:[['Encéfalo','Encephalon','Sistema nervoso central'],['Cérebro','Cerebrum','Sistema nervoso central'],['Cerebelo','Cerebellum','Sistema nervoso central'],['Medula espinhal','Medulla spinalis','Sistema nervoso central'],['Nervo óptico','Nervus opticus','Nervo craniano'],['Nervo ciático','Nervus ischiadicus','Nervo periférico']]},
+      {id:'digestive',name:'Digestório',latin:'Systema digestorium',icon:'◉',text:'Ingestão, digestão, absorção e eliminação.',items:[['Cavidade oral','Cavum oris','Tubo digestório'],['Esôfago','Oesophagus','Tubo digestório'],['Estômago','Ventriculus','Tubo digestório'],['Fígado','Hepar','Órgão associado'],['Pâncreas','Pancreas','Órgão associado'],['Intestino delgado','Intestinum tenue','Tubo digestório'],['Duodeno','Duodenum','Intestino delgado'],['Jejuno','Jejunum','Intestino delgado'],['Íleo','Ileum','Intestino delgado'],['Intestino grosso','Intestinum crassum','Tubo digestório'],['Ceco','Caecum','Intestino grosso'],['Cólon','Colon','Intestino grosso'],['Reto','Rectum','Tubo digestório']]},
+      {id:'respiratory',name:'Respiratório',latin:'Systema respiratorium',icon:'🌬️',text:'Vias aéreas e trocas gasosas.',items:[['Cavidade nasal','Cavum nasi','Vias aéreas'],['Laringe','Larynx','Vias aéreas'],['Traqueia','Trachea','Vias aéreas'],['Brônquios','Bronchi','Vias aéreas'],['Pulmão','Pulmo','Órgão respiratório'],['Diafragma','Diaphragma','Músculo respiratório']]},
+      {id:'cardiovascular',name:'Cardiovascular',latin:'Systema cardiovasculare',icon:'❤️',text:'Circulação do sangue e transporte de substâncias.',items:[['Coração','Cor','Órgão central'],['Átrio direito','Atrium dextrum','Coração'],['Átrio esquerdo','Atrium sinistrum','Coração'],['Ventrículo direito','Ventriculus dexter','Coração'],['Ventrículo esquerdo','Ventriculus sinister','Coração'],['Aorta','Aorta','Artéria sistêmica'],['Veia cava cranial','Vena cava cranialis','Veia sistêmica'],['Veia cava caudal','Vena cava caudalis','Veia sistêmica'],['Artéria pulmonar','Arteria pulmonalis','Circulação pulmonar']]},
+      {id:'urinary',name:'Urinário',latin:'Systema urinarium',icon:'💧',text:'Excreção e regulação dos fluidos corporais.',items:[['Rim','Ren','Órgão urinário'],['Ureter','Ureter','Via urinária'],['Bexiga urinária','Vesica urinaria','Via urinária'],['Uretra','Urethra','Via urinária']]},
+      {id:'reproductive',name:'Genital',latin:'Systemata genitalia',icon:'⚕️',text:'Estruturas reprodutivas masculinas e femininas; variam conforme sexo e espécie.',items:[['Ovário','Ovarium','Fêmea'],['Tuba uterina','Tuba uterina','Fêmea'],['Útero','Uterus','Fêmea'],['Vagina','Vagina','Fêmea'],['Testículo','Testis','Macho'],['Epidídimo','Epididymis','Macho'],['Próstata','Prostata','Macho'],['Pênis','Penis','Macho']]}
     ];
+    const $=s=>document.querySelector(s), state={system:'skeleton',layer:'surface',selected:null,wire:false}, systemsEl=$('#systems'),termsEl=$('#terms'),details=$('#detail');
+    let toastTimer;
+    function toast(msg){$('#toast').textContent=msg;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),1700)}
+    function current(){return data.find(x=>x.id===state.system)||data[0]}
+    function renderSystems(){systemsEl.innerHTML=data.map(s=>`<button class="system" data-id="${s.id}" aria-pressed="${state.system===s.id}"><span class="sysicon">${s.icon}</span>${s.name}</button>`).join('');systemsEl.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{state.system=b.dataset.id;state.selected=null;render()})}
+    function renderTerms(items=current().items){termsEl.innerHTML=items.map(x=>`<button class="term" data-pt="${x[0]}" aria-pressed="${state.selected===x[0]}"><strong>${x[0]}</strong><em>${x[1]}</em><small>${x[2]}</small></button>`).join('');termsEl.querySelectorAll('[data-pt]').forEach(b=>b.onclick=()=>selectTerm(current().items.find(x=>x[0]===b.dataset.pt)))}
+    function render(){const s=current();renderSystems();renderTerms();$('#viewTitle').textContent=s.name;$('#infoTitle').textContent='Nomenclatura anatômica';$('#description').innerHTML=`<b>${s.latin}</b><br>${s.text}`;details.innerHTML='<h3>Selecione uma estrutura</h3><p>Escolha um termo para consultar a região anatômica.</p>';if(ready)applyLayer()}
+    function selectTerm(item){if(!item)return;state.selected=item[0];$('#viewTitle').textContent=item[0];details.innerHTML=`<h3>${item[0]}</h3><div class="latin">${item[1]}</div><p>${item[2]} · Sistema ${current().name}</p><p>Termo para estudo. Confirme nomenclatura e aplicação por espécie na bibliografia recomendada pelo curso.</p>`;renderTerms();highlight(item[0]);toast(item[0])}
+    function norm(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+    $('#search').addEventListener('submit',e=>{e.preventDefault();const q=norm($('#query').value.trim());if(!q){render();return}const found=[];data.forEach(s=>s.items.forEach(i=>{if(norm(i[0]).includes(q)||norm(i[1]).includes(q))found.push({s,i})}));if(!found.length){termsEl.innerHTML='<p class="meta">Nenhuma estrutura encontrada.</p>';$('#description').textContent='Tente buscar pelo nome em português ou latim.';return}const first=found[0];state.system=first.s.id;render();termsEl.innerHTML=found.map(({s,i})=>`<button class="term" data-sys="${s.id}" data-pt="${i[0]}"><strong>${i[0]}</strong><em>${i[1]}</em><small>${s.name} · ${i[2]}</small></button>`).join('');termsEl.querySelectorAll('[data-pt]').forEach(b=>b.onclick=()=>{state.system=b.dataset.sys;render();selectTerm(current().items.find(i=>i[0]===b.dataset.pt))});$('#description').textContent=`${found.length} resultado(s) para a busca.`;$('#query').value=''});
+    $('#species').addEventListener('change',e=>{$('#caption').textContent=`${e.target.value} · vista lateral`;$('#modelBadge').textContent='Modelo esquemático canino; a espécie selecionada não modifica a geometria.';toast('A espécie selecionada não altera o modelo ilustrativo')});
 
-    const state = {
-      systemId: 'skeleton',
-      selectedStructure: null,
-      layer: 'overview',
-      species: 'canine',
-      wireframe: false,
-      toastTimer: null
-    };
-
-    const systemList = document.getElementById('systemList');
-    const termsList = document.getElementById('termsList');
-    const detailCard = document.getElementById('detailCard');
-    const systemDescription = document.getElementById('systemDescription');
-    const speciesSelect = document.getElementById('species');
-    const speciesCaption = document.getElementById('speciesCaption');
-    const viewTitle = document.getElementById('viewerTitle');
-    const toast = document.getElementById('toast');
-    const modelBadge = document.getElementById('modelBadge');
-    const loading = document.getElementById('loading');
-    const canvas = document.getElementById('sceneCanvas');
-    const wireToggle = document.getElementById('wireToggle');
-    const resetViewBtn = document.getElementById('resetView');
-
-    const currentSystem = () => systems.find(s => s.id === state.systemId) ?? systems[0];
-    const normalise = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add('show');
-      clearTimeout(state.toastTimer);
-      state.toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
-    }
-
-    function renderSystemButtons() {
-      systemList.innerHTML = systems.map((system) => `
-        <button type="button" class="system-btn" data-system="${system.id}" aria-pressed="${state.systemId === system.id}">
-          <span class="system-icon" aria-hidden="true">${system.icon}</span>
-          <span>${system.label}</span>
-        </button>
-      `).join('');
-
-      systemList.querySelectorAll('[data-system]').forEach((button) => {
-        button.addEventListener('click', () => {
-          state.systemId = button.dataset.system;
-          state.selectedStructure = null;
-          selectSystem();
-        });
-      });
-    }
-
-    function renderTerms() {
-      const system = currentSystem();
-      termsList.innerHTML = system.structures.map((item) => `
-        <button type="button" class="term-btn" data-name="${item.pt}" aria-pressed="${state.selectedStructure === item.pt}">
-          <strong>${item.pt}</strong>
-          <em>${item.latin}</em>
-          <small>${item.region}</small>
-        </button>
-      `).join('');
-
-      termsList.querySelectorAll('[data-name]').forEach((button) => {
-        button.addEventListener('click', () => {
-          const structure = system.structures.find(item => item.pt === button.dataset.name);
-          state.selectedStructure = structure?.pt ?? null;
-          selectStructure(structure);
-        });
-      });
-    }
-
-    function selectSystem() {
-      const system = currentSystem();
-      renderSystemButtons();
-      renderTerms();
-      systemDescription.innerHTML = `<strong>${system.latin}</strong><br>${system.description}`;
-      viewTitle.textContent = `${system.label}`;
-      detailCard.innerHTML = `
-        <h3>Estrutura selecionada</h3>
-        <div class="meta">Selecione uma estrutura para visualizar o termo em latim e sua região anatômica.</div>
-      `;
-      showToast(`${system.label} ativo`);
-      if (sceneReady) applyLayer();
-    }
-
-    function selectStructure(structure) {
-      if (!structure) return;
-      state.selectedStructure = structure.pt;
-      viewTitle.textContent = `${structure.pt}`;
-      detailCard.innerHTML = `
-        <h3>${structure.pt}</h3>
-        <div class="latin">${structure.latin}</div>
-        <p>${structure.region} · ${currentSystem().label}</p>
-        <p class="meta">Termo anatômico para estudo didático. Confirme sua forma final e uso por espécie segundo a disciplina e o atlas oficial recomendado.</p>
-      `;
-      renderTerms();
-      highlightStructure(structure.pt);
-      showToast(`${structure.pt} selecionado`);
-    }
-
-    function searchStructures(event) {
-      event.preventDefault();
-      const q = normalise(document.getElementById('query').value.trim());
-      if (!q) {
-        state.systemId = currentSystem().id;
-        selectSystem();
-        return;
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+    import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+    import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+    let scene,camera,renderer,controls,group,raycaster,mouse,ready=false,meshes=[],customModel=null;
+    const mat={coat:new THREE.MeshStandardMaterial({color:0xb88961,roughness:.88}),coatLight:new THREE.MeshStandardMaterial({color:0xd3b28c,roughness:.9}),dark:new THREE.MeshStandardMaterial({color:0x49362c,roughness:.83}),innerEar:new THREE.MeshStandardMaterial({color:0x9b625c,roughness:.88}),bone:new THREE.MeshStandardMaterial({color:0xe9d8b5,roughness:.8}),muscle:new THREE.MeshStandardMaterial({color:0xa35763,roughness:.72}),organ:new THREE.MeshStandardMaterial({color:0xc74759,roughness:.55}),organ2:new THREE.MeshStandardMaterial({color:0xd39a49,roughness:.64}),eye:new THREE.MeshPhysicalMaterial({color:0x241811,roughness:.12,clearcoat:1,clearcoatRoughness:.05}),shine:new THREE.MeshBasicMaterial({color:0xffffff}),highlight:new THREE.MeshStandardMaterial({color:0x42c8ff,emissive:0x073f60,emissiveIntensity:.8}),ghost:new THREE.MeshStandardMaterial({color:0x78bddd,transparent:true,opacity:.18,depthWrite:false}),floor:new THREE.MeshStandardMaterial({color:0x10283d,roughness:1})};
+    const groupFor={skeleton:'skeleton',muscular:'muscular',digestive:'digestive',respiratory:'respiratory',cardiovascular:'cardiovascular',nervous:'nervous',urinary:'urinary'};
+    function add(geo,material,label='',system='surface',parent=group){const m=new THREE.Mesh(geo,material);m.castShadow=true;m.receiveShadow=true;m.userData={label,system,original:material};parent.add(m);meshes.push(m);return m}
+    function egg(label,system,material,pos,scale,rot=[0,0,0],parent=group){const m=add(new THREE.SphereGeometry(1,36,28),material,label,system,parent);m.position.set(...pos);m.scale.set(...scale);m.rotation.set(...rot);return m}
+    function segment(label,system,material,a,b,r1,r2=r1,parent=group,radial=20){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),d=new THREE.Vector3().subVectors(B,A);const m=add(new THREE.CylinderGeometry(r2,r1,d.length(),radial,1),material,label,system,parent);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());return m}
+    function loftBody(){const profiles=[[-1.62,.49,.05,.08],[-1.42,.58,.36,.37],[-1.08,.61,.49,.46],[-.65,.58,.48,.43],[-.15,.59,.48,.43],[.34,.66,.57,.49],[.68,.7,.52,.45],[.94,.76,.35,.34],[1.08,.87,.27,.27]];const curve=new THREE.CatmullRomCurve3(profiles.map(p=>new THREE.Vector3(p[0],p[1],0)));const samples=72, sides=48, vertices=[],indices=[];for(let i=0;i<=samples;i++){const t=i/samples,p=curve.getPoint(t),index=Math.min(profiles.length-2,Math.floor(t*(profiles.length-1))),local=t*(profiles.length-1)-index,a=profiles[index],b=profiles[index+1],smooth=local*local*(3-2*local),ry=THREE.MathUtils.lerp(a[2],b[2],smooth),rz=THREE.MathUtils.lerp(a[3],b[3],smooth);for(let j=0;j<=sides;j++){const theta=j/sides*Math.PI*2;vertices.push(p.x,p.y+Math.cos(theta)*ry,Math.sin(theta)*rz)}}for(let i=0;i<samples;i++)for(let j=0;j<sides;j++){const a=i*(sides+1)+j,b=a+sides+1;indices.push(a,b,a+1,b,b+1,a+1)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));g.setIndex(indices);g.computeVertexNormals();add(g,mat.coat,'Tronco','surface')}
+    function paw(x,y,z,front){egg(front?'Pata torácica':'Pata pélvica','surface',mat.coat,[x,y,z],[.23,.14,.19]);for(let i=-1;i<=1;i++)egg('Dígito','surface',mat.coatLight,[x+.13,y-.045,z+i*.105],[.095,.075,.052])}
+    function makeDog(){group=new THREE.Group();scene.add(group);loftBody();
+      // Pescoço e ombros modelados em volumes sobrepostos com transições suaves
+      egg('Região escapular','muscular',mat.coat,[.55,.60,0],[.42,.51,.48],[0,0,-.24]);segment('Pescoço','muscular',mat.coat,[.62,.65,0],[1.30,1.05,0],.30,.27);egg('Crânio','skeleton',mat.coat,[1.45,1.08,0],[.46,.39,.35],[0,0,-.08]);
+      egg('Focinho','digestive',mat.coatLight,[1.79,.91,0],[.40,.22,.245],[0,0,-.13]);egg('Nariz','surface',mat.dark,[2.12,.96,0],[.105,.075,.13]);egg('Mandíbula','skeleton',mat.coatLight,[1.79,.79,0],[.32,.105,.205]);
+      // Orelhas caídas, olhos laterais e focinho detalhado
+      for(const side of [-1,1]){egg('Pavilhão auricular','surface',mat.coat,[1.25,1.35,side*.245],[.18,.39,.12],[0,0,-.28]);egg('Face interna da orelha','surface',mat.innerEar,[1.28,1.34,side*.337],[.085,.27,.018],[0,0,-.28]);egg('Olho','surface',mat.eye,[1.57,1.13,side*.322],[.083,.073,.035]);egg('Reflexo ocular','surface',mat.shine,[1.59,1.16,side*.353],[.024,.022,.012]);egg('Narinas','surface',mat.dark,[2.18,.987,side*.065],[.025,.018,.018]);}
+      // Boca discreta, bochechas e cauda curvada
+      segment('Comissura labial','surface',mat.dark,[1.59,.78,.18],[1.96,.79,.08],.018,.012);egg('Bochecha','muscular',mat.coat,[1.43,.93,0],[.27,.22,.31]);
+      const tail=new THREE.CatmullRomCurve3([new THREE.Vector3(-1.48,.67,0),new THREE.Vector3(-1.82,.79,0),new THREE.Vector3(-2.10,1.04,0),new THREE.Vector3(-2.25,1.23,0)]);const tg=new THREE.TubeGeometry(tail,28,.085,14,false);add(tg,mat.coat,'Cauda','surface');
+      // Membros com massas musculares, segmentos articulados e patas/dígitos visíveis
+      for(const z of [-.32,.32]){
+        egg('Músculo braquiocefálico','muscular',mat.coat,[.52,.40,z],[.25,.42,.18],[0,0,.13]);
+        egg('Músculo glúteo','muscular',mat.coat,[-1.08,.28,z],[.36,.42,.21],[0,0,-.3]);
+        const shoulder=[.58,.44,z],elbow=[.68,-.08,z],carpus=[.73,-.72,z];segment('Úmero','skeleton',mat.coat,shoulder,elbow,.125,.095);egg('Articulação do cotovelo','skeleton',mat.coat,[...elbow],[.12,.13,.12]);segment('Rádio e ulna','skeleton',mat.coat,elbow,carpus,.085,.065);segment('Metacarpo','skeleton',mat.coat,carpus,[.76,-.91,z],.07,.055);paw(.79,-.96,z,true);
+        const hip=[-1.05,.20,z],stifle=[-.75,-.24,z],hock=[-1.04,-.69,z],foot=[-.97,-.91,z];segment('Fêmur','skeleton',mat.coat,hip,stifle,.17,.12);egg('Articulação do joelho','skeleton',mat.coat,stifle,[.13,.14,.12]);segment('Tíbia','skeleton',mat.coat,stifle,hock,.105,.07);segment('Metatarso','skeleton',mat.coat,hock,foot,.065,.05);paw(-.86,-.96,z,false);
       }
-
-      const matches = [];
-      systems.forEach((system) => {
-        system.structures.forEach((item) => {
-          if (normalise(item.pt).includes(q) || normalise(item.latin).includes(q)) {
-            matches.push({ system, item });
-          }
-        });
-      });
-
-      if (!matches.length) {
-        termsList.innerHTML = '<div class="meta">Nenhuma estrutura encontrada. Tente pesquisar por “coração”, “fêmur”, “pulmão”, “ulna” ou “ren”.</div>';
-        systemDescription.textContent = `Nenhum resultado para “${document.getElementById('query').value.trim()}”.`;
-        return;
-      }
-
-      const first = matches[0];
-      state.systemId = first.system.id;
-      state.selectedStructure = first.item.pt;
-      selectSystem();
-      selectStructure(first.item);
-      document.getElementById('query').value = '';
+      // Caixa torácica visível apenas na camada esquelética
+      for(let i=0;i<8;i++){const x=.39-i*.15;const rib=add(new THREE.TorusGeometry(.36,.027,10,28,Math.PI*1.72),mat.bone,'Costelas','skeleton');rib.rotation.y=Math.PI/2;rib.rotation.z=Math.PI;rib.position.set(x,.22,0)}
+      segment('Coluna vertebral','skeleton',mat.bone,[-1.15,.62,0],[.72,.68,0],.055,.055);
+      egg('Coração','cardiovascular',mat.organ,[.12,.24,.02],[.18,.24,.17],[0,0,-.25]);egg('Pulmão','respiratory',mat.organ2,[.27,.48,.18],[.23,.27,.14]);egg('Pulmão','respiratory',mat.organ2,[.27,.48,-.18],[.23,.27,.14]);egg('Fígado','digestive',mat.organ2,[-.32,.24,0],[.32,.19,.28]);egg('Estômago','digestive',mat.organ,[-.73,.19,0],[.24,.20,.20]);egg('Encéfalo','nervous',mat.organ,[1.45,1.16,0],[.24,.22,.22]);egg('Rim','urinary',mat.organ2,[-.63,-.08,.20],[.14,.20,.1]);egg('Rim','urinary',mat.organ2,[-.63,-.08,-.20],[.14,.20,.1]);
+      group.rotation.y=-.23;
     }
-
-    function setSpeciesCaption() {
-      const labels = {
-        canine: 'Canino · vista lateral',
-        feline: 'Felino · vista lateral',
-        equine: 'Equino · vista lateral',
-        bovine: 'Bovino · vista lateral'
-      };
-      speciesCaption.textContent = labels[state.species] || labels.canine;
-    }
-
-    speciesSelect.addEventListener('change', () => {
-      state.species = speciesSelect.value;
-      setSpeciesCaption();
-      showToast(`Espécie: ${speciesSelect.options[speciesSelect.selectedIndex].text.split(' (')[0]}`);
-    });
-
-    document.getElementById('searchForm').addEventListener('submit', searchStructures);
-    document.getElementById('resetView').addEventListener('click', () => {
-      if (!controls) return;
-      camera.position.set(3.5, 2.2, 6.0);
-      controls.target.set(0, 0.3, 0);
-      controls.update();
-      showToast('Vista padrão restaurada');
-    });
-
-    let scene, camera, renderer, controls, raycaster, pointer, animalGroup, meshes = [];
-    let sceneReady = false;
-
-    const materials = {
-      skin: new THREE.MeshStandardMaterial({ color: 0xB8DDF0, roughness: 0.74, metalness: 0.06 }),
-      muscle: new THREE.MeshStandardMaterial({ color: 0xA6687C, roughness: 0.68, metalness: 0.04 }),
-      bone: new THREE.MeshStandardMaterial({ color: 0xECD9B2, emissive: 0x10263d, emissiveIntensity: 0.22, roughness: 0.76 }),
-      organ: new THREE.MeshStandardMaterial({ color: 0xc34259, roughness: 0.5, metalness: 0.08, emissive: 0x3a1120, emissiveIntensity: 0.2 }),
-      organ2: new THREE.MeshStandardMaterial({ color: 0xD48A49, roughness: 0.58, metalness: 0.06, emissive: 0x3e2410, emissiveIntensity: 0.14 }),
-      highlight: new THREE.MeshStandardMaterial({ color: 0x42c8ff, emissive: 0x0d4380, emissiveIntensity: 0.75, roughness: 0.35 }),
-      ghost: new THREE.MeshStandardMaterial({ color: 0x79bfe8, transparent: true, opacity: 0.15, depthWrite: false, roughness: 0.7 }),
-      floor: new THREE.MeshStandardMaterial({ color: 0x12304a, roughness: 1 })
-    };
-
-    function makeMesh(geometry, material, label, groupKey) {
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      mesh.userData = {
-        label,
-        groupKey,
-        original: material
-      };
-      animalGroup.add(mesh);
-      meshes.push(mesh);
-      return mesh;
-    }
-
-    function buildAnimal() {
-      animalGroup = new THREE.Group();
-      scene.add(animalGroup);
-
-      const trunk = makeMesh(new THREE.SphereGeometry(1.05, 32, 24), materials.muscle, 'Tronco', 'muscular');
-      trunk.scale.set(1.55, 1.08, 0.95);
-      trunk.position.set(0, 0.25, 0);
-
-      const chest = makeMesh(new THREE.SphereGeometry(0.8, 28, 24), materials.skin, 'Tórax', 'skeleton');
-      chest.scale.set(1.15, 0.9, 0.72);
-      chest.position.set(0.25, 0.4, 0);
-
-      const head = makeMesh(new THREE.SphereGeometry(0.46, 28, 24), materials.skin, 'Crânio', 'skeleton');
-      head.scale.set(1.16, 0.96, 0.88);
-      head.position.set(1.7, 1.1, 0);
-
-      const muzzle = makeMesh(new THREE.SphereGeometry(0.3, 24, 20), materials.skin, 'Cavidade oral', 'digestive');
-      muzzle.scale.set(1.05, 0.66, 0.9);
-      muzzle.position.set(2.3, 0.8, 0);
-
-      const neck = makeMesh(new THREE.CylinderGeometry(0.18, 0.22, 0.9, 18), materials.skin, 'Pescoço', 'muscular');
-      neck.position.set(1.15, 0.95, 0);
-      neck.rotation.z = -0.3;
-
-      const leftFront = makeMesh(new THREE.CapsuleGeometry(0.14, 1.15, 8, 16), materials.skin, 'Membro torácico', 'skeleton');
-      leftFront.position.set(-0.6, -1.3, 0.45);
-      const rightFront = makeMesh(new THREE.CapsuleGeometry(0.14, 1.15, 8, 16), materials.skin, 'Membro torácico', 'skeleton');
-      rightFront.position.set(-0.6, -1.3, -0.45);
-
-      const leftHind = makeMesh(new THREE.CapsuleGeometry(0.17, 1.35, 8, 16), materials.skin, 'Membro pélvico', 'skeleton');
-      leftHind.position.set(0.9, -1.5, 0.42);
-      const rightHind = makeMesh(new THREE.CapsuleGeometry(0.17, 1.35, 8, 16), materials.skin, 'Membro pélvico', 'skeleton');
-      rightHind.position.set(0.9, -1.5, -0.42);
-
-      const tail = makeMesh(new THREE.CylinderGeometry(0.07, 0.09, 1.25, 14), materials.skin, 'Cauda', 'muscular');
-      tail.position.set(-1.7, 0.3, 0);
-      tail.rotation.z = -0.9;
-
-      const spine = makeMesh(new THREE.CylinderGeometry(0.06, 0.06, 2.4, 16), materials.bone, 'Coluna vertebral', 'skeleton');
-      spine.position.set(0.2, 0.1, 0);
-      spine.rotation.z = Math.PI / 2;
-
-      const ribTorus = makeMesh(new THREE.TorusGeometry(0.74, 0.06, 12, 28, Math.PI * 1.7), materials.bone, 'Costelas', 'skeleton');
-      ribTorus.position.set(0.1, 0.1, 0);
-      ribTorus.rotation.x = Math.PI / 2;
-
-      const heart = makeMesh(new THREE.SphereGeometry(0.2, 18, 18), materials.organ, 'Coração', 'cardiovascular');
-      heart.position.set(0.2, 0.05, 0);
-
-      const lungsL = makeMesh(new THREE.SphereGeometry(0.24, 18, 18), materials.organ2, 'Pulmão', 'respiratory');
-      lungsL.position.set(0.42, 0.6, 0.28);
-      const lungsR = makeMesh(new THREE.SphereGeometry(0.24, 18, 18), materials.organ2, 'Pulmão', 'respiratory');
-      lungsR.position.set(0.42, 0.6, -0.28);
-
-      const liver = makeMesh(new THREE.SphereGeometry(0.34, 18, 18), materials.organ2, 'Fígado', 'digestive');
-      liver.position.set(-0.4, 0.1, 0.06);
-      liver.scale.set(1.25, 0.88, 0.92);
-
-      const stomach = makeMesh(new THREE.SphereGeometry(0.3, 18, 18), materials.organ, 'Estômago', 'digestive');
-      stomach.position.set(-0.85, 0.0, 0.0);
-      stomach.scale.set(1.28, 0.92, 0.88);
-
-      const brain = makeMesh(new THREE.SphereGeometry(0.32, 18, 18), materials.organ, 'Encéfalo', 'nervous');
-      brain.position.set(1.78, 1.54, 0.04);
-
-      const kidneysL = makeMesh(new THREE.SphereGeometry(0.14, 16, 16), materials.organ2, 'Rim', 'urinary');
-      kidneysL.position.set(-0.7, -0.52, 0.28);
-      const kidneysR = makeMesh(new THREE.SphereGeometry(0.14, 16, 16), materials.organ2, 'Rim', 'urinary');
-      kidneysR.position.set(-0.7, -0.52, -0.28);
-
-      const humerus = makeMesh(new THREE.CylinderGeometry(0.09, 0.09, 1.05, 16), materials.bone, 'Úmero', 'skeleton');
-      humerus.position.set(-0.05, -1.5, 0.42);
-      humerus.rotation.z = Math.PI / 2;
-
-      const femur = makeMesh(new THREE.CylinderGeometry(0.12, 0.12, 1.25, 16), materials.bone, 'Fêmur', 'skeleton');
-      femur.position.set(1.05, -1.75, 0.42);
-      femur.rotation.z = Math.PI / 2;
-
-      const pelvis = makeMesh(new THREE.TorusGeometry(0.62, 0.11, 10, 30), materials.bone, 'Osso coxal', 'skeleton');
-      pelvis.position.set(0.55, -0.7, 0);
-      pelvis.rotation.x = Math.PI / 2;
-
-      const trachea = makeMesh(new THREE.CylinderGeometry(0.06, 0.06, 1.3, 16), materials.bone, 'Traqueia', 'respiratory');
-      trachea.position.set(1.05, 1.05, 0);
-      trachea.rotation.z = -0.18;
-
-      animalGroup.rotation.y = -0.6;
-      animalGroup.rotation.x = 0.15;
-    }
-
-    function init3D() {
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color('#071426');
-      scene.fog = new THREE.Fog('#071426', 8, 18);
-
-      camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-      camera.position.set(3.5, 2.2, 6.0);
-
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-      controls = new OrbitControls(camera, canvas);
-      controls.enableDamping = true;
-      controls.enablePan = false;
-      controls.minDistance = 2.8;
-      controls.maxDistance = 9;
-      controls.target.set(0, 0.3, 0);
-
-      scene.add(new THREE.HemisphereLight(0xcfe8ff, 0x0b1320, 2.1));
-      const key = new THREE.DirectionalLight(0xfff0cf, 2.5);
-      key.position.set(4, 5, 3);
-      key.castShadow = true;
-      scene.add(key);
-
-      const fill = new THREE.DirectionalLight(0x75d7ff, 1.7);
-      fill.position.set(-4, 3, -2);
-      scene.add(fill);
-
-      const floor = new THREE.Mesh(new THREE.CircleGeometry(3.1, 64), materials.floor);
-      floor.rotation.x = -Math.PI / 2;
-      floor.position.y = -1.7;
-      floor.receiveShadow = true;
-      scene.add(floor);
-
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.014, 8, 100), new THREE.MeshBasicMaterial({ color: 0x42c8ff, transparent: true, opacity: 0.22 }));
-      ring.rotation.x = Math.PI / 2;
-      ring.position.y = -1.66;
-      scene.add(ring);
-
-      raycaster = new THREE.Raycaster();
-      pointer = new THREE.Vector2();
-      buildAnimal();
-      applyLayer();
-      resizeRenderer();
-      sceneReady = true;
-      animate();
-    }
-
-    function resizeRenderer() {
-      if (!renderer) return;
-      const rect = canvas.getBoundingClientRect();
-      const width = rect.width || 800;
-      const height = rect.height || 600;
-      renderer.setSize(width, height, false);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-    }
-
-    function applyLayer() {
-      if (!animalGroup) return;
-      const system = currentSystem();
-      animalGroup.traverse((obj) => {
-        if (!obj.isMesh) return;
-        const baseMaterial = obj.userData.original || obj.material;
-        const groupKey = obj.userData.groupKey;
-
-        if (state.layer === 'overview') {
-          obj.material = baseMaterial;
-          return;
-        }
-
-        if (state.layer === 'skeleton') {
-          obj.material = (groupKey === 'skeleton') ? materials.highlight : materials.ghost;
-          return;
-        }
-
-        if (state.layer === 'organs') {
-          obj.material = ['cardiovascular', 'digestive', 'respiratory', 'urinary', 'nervous'].includes(groupKey) ? materials.highlight : materials.ghost;
-        }
-      });
-
-      if (state.selectedStructure) {
-        highlightStructure(state.selectedStructure);
-      }
-    }
-
-    function highlightStructure(name) {
-      if (!animalGroup) return;
-      const match = currentSystem().structures.find(item => item.pt === name);
-      if (!match) return;
-
-      animalGroup.traverse((obj) => {
-        if (!obj.isMesh) return;
-        const groupKey = obj.userData.groupKey;
-        const systemId = currentSystem().id;
-
-        if (obj.userData.label === name || obj.userData.label === match.pt || obj.userData.label === match.region) {
-          obj.material = materials.highlight;
-        } else if (state.layer === 'overview') {
-          obj.material = obj.userData.original || obj.material;
-        } else if (state.layer === 'skeleton') {
-          obj.material = (groupKey === 'skeleton') ? materials.highlight : materials.ghost;
-        } else if (state.layer === 'organs') {
-          obj.material = ['cardiovascular', 'digestive', 'respiratory', 'urinary', 'nervous'].includes(groupKey) ? materials.highlight : materials.ghost;
-        }
-      });
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-      if (controls && renderer && scene) {
-        controls.update();
-        renderer.render(scene, camera);
-      }
-    }
-
-    function onCanvasClick(event) {
-      const rect = canvas.getBoundingClientRect();
-      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-      raycaster.setFromCamera(pointer, camera);
-      const intersections = raycaster.intersectObjects(meshes, false);
-      const hit = intersections[0];
-      if (!hit) return;
-      const label = hit.object.userData.label;
-      const structure = currentSystem().structures.find(item => item.pt === label);
-      if (structure) {
-        state.selectedStructure = structure.pt;
-        selectStructure(structure);
-      }
-    }
-
-    canvas.addEventListener('pointerdown', onCanvasClick);
-
-    document.querySelectorAll('[data-layer]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        state.layer = btn.dataset.layer;
-        document.querySelectorAll('[data-layer]').forEach((x) => x.classList.toggle('active', x === btn));
-        applyLayer();
-      });
-    });
-
-    wireToggle.addEventListener('click', () => {
-      state.wireframe = !state.wireframe;
-      wireToggle.classList.toggle('active', state.wireframe);
-      meshes.forEach((m) => { m.material.wireframe = state.wireframe; });
-      showToast(state.wireframe ? 'Malha ativada' : 'Malha desativada');
-    });
-
-    document.getElementById('modelFile').addEventListener('change', async (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      if (!file.name.toLowerCase().endsWith('.glb') && !file.name.toLowerCase().endsWith('.gltf')) {
-        showToast('Selecione um arquivo GLB ou GLTF.');
-        event.target.value = '';
-        return;
-      }
-
-      loading.hidden = false;
-      const url = URL.createObjectURL(file);
-      try {
-        const gltfLoader = new GLTFLoader();
-        const gltf = await gltfLoader.loadAsync(url);
-
-        if (animalGroup) {
-          scene.remove(animalGroup);
-          meshes = [];
-        }
-
-        animalGroup = gltf.scene;
-        animalGroup.traverse((obj) => {
-          if (obj.isMesh) {
-            obj.castShadow = true;
-            obj.receiveShadow = true;
-            obj.material = obj.material.clone();
-            obj.material.emissive = new THREE.Color(0x102a40);
-            obj.material.emissiveIntensity = 0.15;
-            obj.userData = { label: obj.name || 'Estrutura', groupKey: 'custom', original: obj.material };
-            meshes.push(obj);
-          }
-        });
-
-        const box = new THREE.Box3().setFromObject(animalGroup);
-        const size = box.getSize(new THREE.Vector3());
-        const maxDimension = Math.max(size.x, size.y, size.z) || 1;
-        animalGroup.scale.setScalar(2.8 / maxDimension);
-        animalGroup.position.set(0, -0.8, 0);
-        scene.add(animalGroup);
-        modelBadge.textContent = `${file.name} · modelo carregado localmente`;
-        showToast('Modelo GLB carregado');
-      } catch (error) {
-        console.error(error);
-        showToast('Falha ao carregar o modelo GLB');
-      } finally {
-        loading.hidden = true;
-        URL.revokeObjectURL(url);
-        event.target.value = '';
-      }
-    });
-
-    function boot() {
-      renderSystemButtons();
-      setSpeciesCaption();
-      selectSystem();
-      init3D();
-      window.addEventListener('resize', resizeRenderer);
-    }
-
+    function init(){try{scene=new THREE.Scene();scene.background=new THREE.Color('#071426');scene.fog=new THREE.Fog('#071426',8,18);camera=new THREE.PerspectiveCamera(36,1,.1,100);camera.position.set(3.2,2.1,6.1);renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.dampingFactor=.06;controls.enablePan=false;controls.minDistance=2.8;controls.maxDistance=8;controls.target.set(0,.1,0);scene.add(new THREE.HemisphereLight(0xd8edff,0x15101a,2.2));const key=new THREE.DirectionalLight(0xffe6c6,3.3);key.position.set(3,5,4);key.castShadow=true;scene.add(key);const rim=new THREE.DirectionalLight(0x56cfff,2.2);rim.position.set(-4,3,-4);scene.add(rim);const floor=add(new THREE.CircleGeometry(3,64),mat.floor,'','surface',scene);floor.rotation.x=-Math.PI/2;floor.position.y=-1.11;floor.receiveShadow=true;floor.userData.ignorePick=true;const grid=new THREE.GridHelper(6,24,0x21618a,0x16334b);grid.position.y=-1.105;grid.material.transparent=true;grid.material.opacity=.24;scene.add(grid);raycaster=new THREE.Raycaster();mouse=new THREE.Vector2();makeDog();ready=true;resize();new ResizeObserver(resize).observe($('#canvasWrap'));animate()}catch(err){console.error(err);$('#loading').hidden=false;$('#loading').textContent='Não foi possível iniciar WebGL neste navegador.'}}
+    function resize(){if(!renderer)return;const r=$('#canvasWrap').getBoundingClientRect();renderer.setSize(Math.max(r.width,1),Math.max(r.height,1),false);camera.aspect=r.width/Math.max(r.height,1);camera.updateProjectionMatrix()}
+    function meshSystemKey(m){return m.userData.system}
+    function applyLayer(){if(!group)return;for(const m of meshes){if(m.userData.ignorePick)continue;const key=meshSystemKey(m);if(state.layer==='surface')m.material=m.userData.original;else if(state.layer==='skeleton')m.material=key==='skeleton'?mat.highlight:mat.ghost;else m.material=['cardiovascular','digestive','respiratory','urinary','nervous'].includes(key)?mat.highlight:mat.ghost}if(state.selected)highlight(state.selected)}
+    function highlight(name){if(!group)return;const aliases={'Crânio':['Crânio'],'Mandíbula':['Mandíbula'],'Coluna vertebral':['Coluna vertebral'],'Costelas':['Costelas'],'Úmero':['Úmero'],'Fêmur':['Fêmur'],'Coração':['Coração'],'Pulmão':['Pulmão'],'Fígado':['Fígado'],'Estômago':['Estômago'],'Encéfalo':['Encéfalo'],'Rim':['Rim']};const targets=aliases[name]||[name];for(const m of meshes){if(m.userData.ignorePick)continue;if(targets.includes(m.userData.label))m.material=mat.highlight}}
+    function animate(){requestAnimationFrame(animate);if(controls){controls.update();renderer.render(scene,camera)}}
+    $('#reset').onclick=()=>{camera.position.set(3.2,2.1,6.1);controls.target.set(0,.1,0);controls.update();toast('Vista inicial restaurada')};
+    document.querySelectorAll('[data-layer]').forEach(b=>b.onclick=()=>{state.layer=b.dataset.layer;document.querySelectorAll('[data-layer]').forEach(x=>x.classList.toggle('active',x===b));applyLayer()});
+    $('#wire').onclick=e=>{state.wire=!state.wire;e.currentTarget.classList.toggle('active',state.wire);for(const m of meshes){const materials=Array.isArray(m.material)?m.material:[m.material];materials.forEach(x=>{if(x&&'wireframe'in x)x.wireframe=state.wire})}};
+    canvas.addEventListener('pointerup',e=>{const r=canvas.getBoundingClientRect();mouse.x=(e.clientX-r.left)/r.width*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;raycaster.setFromCamera(mouse,camera);const hit=raycaster.intersectObjects(meshes.filter(m=>!m.userData.ignorePick),false)[0];if(!hit)return;const label=hit.object.userData.label;if(!label)return;const item=current().items.find(x=>x[0]===label);if(item)selectTerm(item);else{details.innerHTML=`<h3>${label}</h3><p>Parte da representação de superfície esquemática; não é uma identificação anatômica validada.</p>`;toast(label)}});
+    $('#file').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;const url=URL.createObjectURL(f);$('#loading').hidden=false;try{const loader=new GLTFLoader(),gltf=await loader.loadAsync(url);if(customModel)scene.remove(customModel);customModel=gltf.scene;const box=new THREE.Box3().setFromObject(customModel),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),scale=2.8/(Math.max(size.x,size.y,size.z)||1);customModel.position.sub(center);customModel.scale.setScalar(scale);customModel.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});group.visible=false;scene.add(customModel);$('#status').textContent='● GLB carregado localmente';$('#modelBadge').textContent=f.name+' · carregado neste navegador';toast('Modelo carregado')}catch(err){console.error(err);toast('Falha ao carregar o GLB/GLTF')}finally{$('#loading').hidden=true;URL.revokeObjectURL(url);e.target.value=''}});
+    function boot(){render();init();window.addEventListener('resize',resize)}
     boot();
   </script>
 </body>
